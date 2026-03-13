@@ -48,6 +48,63 @@
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
+  //  KEY INFO — finger and reach descriptions for tutorials
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const KEY_INFO = {
+    // Home row
+    'a': { finger: 'Left Pinky',   fingerClass: 'finger-left-pinky',   desc: 'Home row anchor — your left pinky rests here at all times.' },
+    's': { finger: 'Left Ring',    fingerClass: 'finger-left-ring',    desc: 'Home row — your left ring finger rests here.' },
+    'd': { finger: 'Left Middle',  fingerClass: 'finger-left-middle',  desc: 'Home row — your left middle finger rests here.' },
+    'f': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Home row anchor — feel the raised bump. Left index rests here.' },
+    'j': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Home row anchor — feel the raised bump. Right index rests here.' },
+    'k': { finger: 'Right Middle', fingerClass: 'finger-right-middle', desc: 'Home row — your right middle finger rests here.' },
+    'l': { finger: 'Right Ring',   fingerClass: 'finger-right-ring',   desc: 'Home row — your right ring finger rests here.' },
+    ';': { finger: 'Right Pinky',  fingerClass: 'finger-right-pinky',  desc: 'Home row — your right pinky rests here.' },
+    // Top row
+    'q': { finger: 'Left Pinky',   fingerClass: 'finger-left-pinky',   desc: 'Reach up from A with your left pinky.' },
+    'w': { finger: 'Left Ring',    fingerClass: 'finger-left-ring',    desc: 'Reach up from S with your left ring finger.' },
+    'e': { finger: 'Left Middle',  fingerClass: 'finger-left-middle',  desc: 'Reach up from D with your left middle finger.' },
+    'r': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Reach up from F with your left index finger.' },
+    't': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Reach up and right from F with your left index finger.' },
+    'y': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Reach up and left from J with your right index finger.' },
+    'u': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Reach up from J with your right index finger.' },
+    'i': { finger: 'Right Middle', fingerClass: 'finger-right-middle', desc: 'Reach up from K with your right middle finger.' },
+    'o': { finger: 'Right Ring',   fingerClass: 'finger-right-ring',   desc: 'Reach up from L with your right ring finger.' },
+    'p': { finger: 'Right Pinky',  fingerClass: 'finger-right-pinky',  desc: 'Reach up from ; with your right pinky finger.' },
+    // Home row extras
+    'g': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Stretch right from F with your left index finger.' },
+    'h': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Stretch left from J with your right index finger.' },
+    // Bottom row
+    'z': { finger: 'Left Pinky',   fingerClass: 'finger-left-pinky',   desc: 'Reach down from A with your left pinky.' },
+    'x': { finger: 'Left Ring',    fingerClass: 'finger-left-ring',    desc: 'Reach down from S with your left ring finger.' },
+    'c': { finger: 'Left Middle',  fingerClass: 'finger-left-middle',  desc: 'Reach down from D with your left middle finger.' },
+    'v': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Reach down and left from F with your left index finger.' },
+    'b': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Reach down and right from F with your left index finger.' },
+    'n': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Reach down from J with your right index finger.' },
+    'm': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Reach down and right from J with your right index finger.' },
+    ',': { finger: 'Right Middle', fingerClass: 'finger-right-middle', desc: 'Reach down from K with your right middle finger.' },
+    '.': { finger: 'Right Ring',   fingerClass: 'finger-right-ring',   desc: 'Reach down from L with your right ring finger.' },
+    '/': { finger: 'Right Pinky',  fingerClass: 'finger-right-pinky',  desc: 'Reach down from ; with your right pinky finger.' },
+    // Number row
+    '1': { finger: 'Left Pinky',   fingerClass: 'finger-left-pinky',   desc: 'Reach up from Q with your left pinky.' },
+    '2': { finger: 'Left Ring',    fingerClass: 'finger-left-ring',    desc: 'Reach up from W with your left ring finger.' },
+    '3': { finger: 'Left Middle',  fingerClass: 'finger-left-middle',  desc: 'Reach up from E with your left middle finger.' },
+    '4': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Reach up from R with your left index finger.' },
+    '5': { finger: 'Left Index',   fingerClass: 'finger-left-index',   desc: 'Reach up from T with your left index finger.' },
+    '6': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Reach up from Y with your right index finger.' },
+    '7': { finger: 'Right Index',  fingerClass: 'finger-right-index',  desc: 'Reach up from U with your right index finger.' },
+    '8': { finger: 'Right Middle', fingerClass: 'finger-right-middle', desc: 'Reach up from I with your right middle finger.' },
+    '9': { finger: 'Right Ring',   fingerClass: 'finger-right-ring',   desc: 'Reach up from O with your right ring finger.' },
+    '0': { finger: 'Right Pinky',  fingerClass: 'finger-right-pinky',  desc: 'Reach up from P with your right pinky finger.' },
+    // Punctuation
+    "'": { finger: 'Right Pinky',  fingerClass: 'finger-right-pinky',  desc: 'Reach right from ; with your right pinky.' },
+    '-': { finger: 'Right Pinky',  fingerClass: 'finger-right-pinky',  desc: 'Reach up-right from P with your right pinky.' },
+    '!': { finger: 'Left Pinky',   fingerClass: 'finger-left-pinky',   desc: 'Shift + 1 — reach up from Q with your left pinky.' },
+    '?': { finger: 'Right Pinky',  fingerClass: 'finger-right-pinky',  desc: 'Shift + / — reach down from ; with your right pinky.' },
+  };
+
+  // ═══════════════════════════════════════════════════════════════════════════
   //  INIT
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -179,6 +236,69 @@
     const lesson = Lessons.get(lessonId);
     if (!lesson) return;
 
+    const prefs = Storage.getPreferences();
+
+    // Chain: hand tutorial (once ever) → new key intro (when lesson has new keys) → session
+    if (!prefs.seenHandTutorial) {
+      showHandTutorial(() => {
+        Storage.savePreference('seenHandTutorial', true);
+        if (lesson.newKeys && lesson.newKeys.length > 0) {
+          showNewKeyIntro(lesson, () => _beginSession(lessonId));
+        } else {
+          _beginSession(lessonId);
+        }
+      });
+    } else if (lesson.newKeys && lesson.newKeys.length > 0) {
+      showNewKeyIntro(lesson, () => _beginSession(lessonId));
+    } else {
+      _beginSession(lessonId);
+    }
+  }
+
+  function showHandTutorial(onDone) {
+    const modal = document.getElementById('modal-hand-tutorial');
+    if (!modal) { onDone(); return; }
+    modal.classList.add('open');
+    const btn = document.getElementById('btn-hand-tutorial-done');
+    if (btn) {
+      btn.onclick = () => {
+        modal.classList.remove('open');
+        onDone();
+      };
+    }
+  }
+
+  function showNewKeyIntro(lesson, onDone) {
+    const modal = document.getElementById('modal-new-keys');
+    const cardsEl = document.getElementById('new-key-cards');
+    if (!modal || !cardsEl) { onDone(); return; }
+
+    cardsEl.innerHTML = lesson.newKeys.map(key => {
+      const info = KEY_INFO[key];
+      if (!info) return '';
+      const label = key === ' ' ? 'Space' : key.toUpperCase();
+      return `
+        <div class="new-key-card">
+          <div class="key-badge-large ${info.fingerClass}">${label}</div>
+          <div class="new-key-info">
+            <div class="key-finger-label">${info.finger}</div>
+            <div class="key-reach-desc">${info.desc}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    modal.classList.add('open');
+    const btn = document.getElementById('btn-new-keys-done');
+    if (btn) {
+      btn.onclick = () => {
+        modal.classList.remove('open');
+        onDone();
+      };
+    }
+  }
+
+  function _beginSession(lessonId) {
+    const lesson = Lessons.get(lessonId);
     Storage.setCurrentLesson(lessonId, lesson.phase);
 
     // Build exercise list — maybe inject problem key drill

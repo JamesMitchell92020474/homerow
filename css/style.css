@@ -975,6 +975,151 @@ input:focus, select:focus, textarea:focus {
 .modal p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.25rem; }
 .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap; }
 
+/* ─── Tutorial modals ────────────────────────────────────────────────────────── */
+
+.modal-wide { max-width: 580px; }
+.btn-full   { width: 100%; margin-top: 1.5rem; }
+
+/* Home row visual */
+.tutorial-homerow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 1.5rem 0 0.75rem;
+}
+.tutorial-spacer { width: 2rem; flex-shrink: 0; }
+.tutorial-key {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  position: relative;
+  transition: border-color var(--transition);
+}
+.tutorial-key[data-finger="left-pinky"],
+.tutorial-key[data-finger="right-pinky"]  { border-color: var(--finger-pinky); color: var(--finger-pinky); }
+.tutorial-key[data-finger="left-ring"],
+.tutorial-key[data-finger="right-ring"]   { border-color: var(--finger-ring);  color: var(--finger-ring); }
+.tutorial-key[data-finger="left-middle"],
+.tutorial-key[data-finger="right-middle"] { border-color: var(--finger-middle);color: var(--finger-middle); }
+.tutorial-key[data-finger="left-index"],
+.tutorial-key[data-finger="right-index"]  { border-color: var(--finger-index); color: var(--finger-index); }
+
+/* F and J anchor keys get a small bump indicator */
+.tutorial-anchor::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+/* Finger legend below home row */
+.tutorial-finger-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.legend-spacer { width: 2rem; flex-shrink: 0; }
+.legend-item {
+  width: 52px;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  opacity: 0.8;
+}
+.legend-item[data-finger="left-pinky"],
+.legend-item[data-finger="right-pinky"]  { color: var(--finger-pinky); }
+.legend-item[data-finger="left-ring"],
+.legend-item[data-finger="right-ring"]   { color: var(--finger-ring); }
+.legend-item[data-finger="left-middle"],
+.legend-item[data-finger="right-middle"] { color: var(--finger-middle); }
+.legend-item[data-finger="left-index"],
+.legend-item[data-finger="right-index"]  { color: var(--finger-index); }
+
+/* Tips list */
+.tutorial-tips {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.tutorial-tips li {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  padding-left: 1.2rem;
+  position: relative;
+}
+.tutorial-tips li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+.tutorial-tips li strong { color: var(--text); }
+
+/* New key cards */
+.new-key-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.new-key-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+}
+.key-badge-large {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.key-badge-large.finger-left-pinky,
+.key-badge-large.finger-right-pinky  { border-color: var(--finger-pinky);  color: var(--finger-pinky); }
+.key-badge-large.finger-left-ring,
+.key-badge-large.finger-right-ring   { border-color: var(--finger-ring);   color: var(--finger-ring); }
+.key-badge-large.finger-left-middle,
+.key-badge-large.finger-right-middle { border-color: var(--finger-middle); color: var(--finger-middle); }
+.key-badge-large.finger-left-index,
+.key-badge-large.finger-right-index  { border-color: var(--finger-index);  color: var(--finger-index); }
+.key-badge-large.finger-thumb        { border-color: var(--finger-thumb);  color: var(--finger-thumb); }
+
+.new-key-info { display: flex; flex-direction: column; gap: 0.2rem; }
+.key-finger-label { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+.key-reach-desc   { font-size: 0.78rem; color: var(--text-dim); line-height: 1.4; }
+
 /* ─── Toast notifications ─────────────────────────────────────────────────────── */
 
 #toast-container {

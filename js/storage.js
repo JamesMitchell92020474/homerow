@@ -23,6 +23,7 @@ window.Storage = (() => {
         strictMode: false,
         apiKey: '',
         theme: 'dark',
+        seenHandTutorial: false,
       },
     };
   }

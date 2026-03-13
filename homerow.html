@@ -350,6 +350,61 @@
 </div><!-- #app -->
 
 <!-- ═══════════════════════════════════════════════════════════
+     MODAL: Hand Placement Tutorial (shown once before first session)
+════════════════════════════════════════════════════════════ -->
+<div id="modal-hand-tutorial" class="modal-overlay">
+  <div class="modal modal-wide">
+    <h3>Hand Position — Before You Start</h3>
+    <p>Touch typing starts with your fingers in the right place. Spend 30 seconds on this and every lesson will go more smoothly.</p>
+
+    <div class="tutorial-homerow">
+      <div class="tutorial-key" data-finger="left-pinky">A</div>
+      <div class="tutorial-key" data-finger="left-ring">S</div>
+      <div class="tutorial-key" data-finger="left-middle">D</div>
+      <div class="tutorial-key tutorial-anchor" data-finger="left-index">F</div>
+      <div class="tutorial-spacer"></div>
+      <div class="tutorial-key tutorial-anchor" data-finger="right-index">J</div>
+      <div class="tutorial-key" data-finger="right-middle">K</div>
+      <div class="tutorial-key" data-finger="right-ring">L</div>
+      <div class="tutorial-key" data-finger="right-pinky">;</div>
+    </div>
+
+    <div class="tutorial-finger-legend">
+      <span class="legend-item" data-finger="left-pinky">Pinky</span>
+      <span class="legend-item" data-finger="left-ring">Ring</span>
+      <span class="legend-item" data-finger="left-middle">Middle</span>
+      <span class="legend-item" data-finger="left-index">Index</span>
+      <span class="legend-spacer"></span>
+      <span class="legend-item" data-finger="right-index">Index</span>
+      <span class="legend-item" data-finger="right-middle">Middle</span>
+      <span class="legend-item" data-finger="right-ring">Ring</span>
+      <span class="legend-item" data-finger="right-pinky">Pinky</span>
+    </div>
+
+    <ul class="tutorial-tips">
+      <li><strong>F and J have raised bumps</strong> — use them to find home position without looking down.</li>
+      <li><strong>Curve your fingers lightly</strong> — rest them gently on the keys, not pressing down.</li>
+      <li><strong>Return after every keystroke</strong> — always bring fingers back to home row after reaching for another key.</li>
+      <li><strong>Eyes on the screen</strong> — the keyboard diagram at the bottom of each session shows which finger to use.</li>
+    </ul>
+
+    <button id="btn-hand-tutorial-done" class="btn-primary btn-full">I'm Ready — Let's Type</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: New Key Intro (shown at session start when new keys are introduced)
+════════════════════════════════════════════════════════════ -->
+<div id="modal-new-keys" class="modal-overlay">
+  <div class="modal modal-wide">
+    <h3>New Keys This Lesson</h3>
+    <p>Here's which finger to use for each new key. The keyboard diagram will highlight the correct finger as you type — don't worry about memorising this now.</p>
+    <div id="new-key-cards" class="new-key-cards"></div>
+    <button id="btn-new-keys-done" class="btn-primary btn-full">Start Session</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
      MODAL: Confirm Reset
 ════════════════════════════════════════════════════════════ -->
 <div id="modal-reset" class="modal-overlay">
