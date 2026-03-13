@@ -93,6 +93,12 @@ In **Strict Mode**, you must correct every mistake before you can continue. The 
 
 ---
 
+## Light and Dark Mode
+
+HomeRow defaults to a dark theme. Click the 🌙 / ☀️ button in the top-right toolbar to switch between dark and light mode. You can also toggle it under **Settings → Appearance**. Your preference is saved and restored automatically.
+
+---
+
 ## Sound Effects
 
 HomeRow plays a soft click on correct keystrokes and a short buzz on errors. This gives your fingers instant feedback even when your eyes are on the screen.

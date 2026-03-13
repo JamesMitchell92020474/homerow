@@ -225,6 +225,30 @@ clone.play().catch(() => {}); // ignore autoplay policy errors
 
 ---
 
+## Theming
+
+### Light / dark mode
+
+`preferences.theme` in localStorage. `'dark'` by default.
+
+- Toolbar button (🌙/☀️): calls `toggleTheme()`, saves preference, updates button icon and title.
+- Settings checkbox `#setting-theme` (under **Appearance**): synced with the toolbar button.
+- Both are kept in sync in both directions.
+
+`applyTheme(theme)` in `app.js` toggles the `light` class on `<body>`. All colours are CSS variables defined in `:root` (dark values) with overrides under `body.light` in `style.css`. No hardcoded colours outside those blocks.
+
+### CSS variable structure
+
+`:root` defines the dark theme. `body.light { … }` overrides only the variables that differ:
+- Surface/background/border/input colours
+- `--shadow` opacity
+- `--badge-bg-beginner / intermediate / advanced` tints (light versions use soft pastel backgrounds)
+- Finger colours (slightly deeper for contrast on light backgrounds)
+
+Accent, success, error, warning, and info colours are intentionally shared between themes.
+
+---
+
 ## AI Feedback Integration
 
 ### Detection logic
