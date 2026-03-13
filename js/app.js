@@ -645,6 +645,52 @@
     return window.location.protocol === 'http:' || window.location.protocol === 'https:';
   }
 
+  function generateTemplateFeedback(sessionData) {
+    const recentSessions = Storage.getRecentSessions(5);
+    const trend = computeTrend(recentSessions);
+    const topProblems = Tracker.getSessionProblemKeys(3);
+
+    const sentences = [];
+
+    // Accuracy sentence
+    if (sessionData.accuracy >= 97) {
+      sentences.push(`Outstanding accuracy at ${sessionData.accuracy}% — your fingers are landing exactly where they need to.`);
+    } else if (sessionData.accuracy >= 93) {
+      sentences.push(`Solid accuracy at ${sessionData.accuracy}% — you're building clean habits that will pay off as speed increases.`);
+    } else if (sessionData.accuracy >= 88) {
+      sentences.push(`Accuracy at ${sessionData.accuracy}% is a good foundation, though slowing down slightly on tricky keys will help lock in cleaner muscle memory.`);
+    } else {
+      sentences.push(`Accuracy at ${sessionData.accuracy}% suggests you're pushing pace a little faster than your fingers are ready for — prioritise hitting the right key over hitting it quickly.`);
+    }
+
+    // Speed sentence
+    if (sessionData.wpm >= 50) {
+      sentences.push(`${sessionData.wpm} WPM is strong, confident typing.`);
+    } else if (sessionData.wpm >= 30) {
+      sentences.push(`${sessionData.wpm} WPM shows you're finding a good rhythm.`);
+    } else if (sessionData.wpm >= 15) {
+      sentences.push(`${sessionData.wpm} WPM is a steady pace for this stage — consistency now builds speed later.`);
+    } else {
+      sentences.push(`Focus on accuracy over speed for now — the WPM will follow naturally once your fingers know where to go.`);
+    }
+
+    // Trend sentence
+    if (trend === 'improving') {
+      sentences.push(`Your speed has been trending upward across recent sessions — keep it up.`);
+    } else if (trend === 'declining') {
+      sentences.push(`Your WPM has dipped slightly compared to recent sessions — that can happen when tackling harder keys, so don't be discouraged.`);
+    }
+
+    // Problem key tip
+    if (topProblems.length > 0) {
+      const worst = topProblems[0];
+      const keyName = worst.key === ' ' ? 'the space bar' : `the ${worst.key.toUpperCase()} key`;
+      sentences.push(`Your most-missed key this session was ${keyName} — try practising it in slow, deliberate repetitions before your next session.`);
+    }
+
+    return sentences.join(' ');
+  }
+
   async function fetchAiFeedback(sessionData) {
     const feedbackEl = document.getElementById('ai-feedback-text');
     if (!feedbackEl) return;
@@ -652,8 +698,11 @@
     const proxyAvailable = isHosted();
     const apiKey = Storage.getApiKey();
 
+    // No API available — show template feedback with upgrade hint
     if (!proxyAvailable && !apiKey) {
-      feedbackEl.innerHTML = `<span class="unavailable">Add your Anthropic API key in Settings to unlock personalised coaching feedback after each session.</span>`;
+      const template = generateTemplateFeedback(sessionData);
+      feedbackEl.innerHTML = `<p>${escapeHtml(template)}</p>
+        <p class="feedback-upgrade">Add your Anthropic API key in Settings for personalised AI coaching.</p>`;
       return;
     }
 
@@ -715,7 +764,9 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
 
       feedbackEl.innerHTML = `<p>${escapeHtml(feedback)}</p>`;
     } catch (err) {
-      feedbackEl.innerHTML = `<span class="unavailable">Feedback unavailable: ${escapeHtml(err.message)}</span>`;
+      // API failed — fall back to template feedback silently
+      const template = generateTemplateFeedback(sessionData);
+      feedbackEl.innerHTML = `<p>${escapeHtml(template)}</p>`;
     }
   }
 

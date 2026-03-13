@@ -671,6 +671,7 @@ input:focus, select:focus, textarea:focus {
   font-style: italic;
 }
 .ai-feedback .unavailable { color: var(--text-dim); font-size: 0.85rem; }
+.ai-feedback .feedback-upgrade { color: var(--text-dim); font-size: 0.8rem; margin-top: 0.5rem; }
 
 /* Summary actions */
 .summary-actions {
