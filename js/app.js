@@ -52,42 +52,57 @@
   // ═══════════════════════════════════════════════════════════════════════════
 
   const KeyNav = (() => {
-    let group = [];
-    let idx   = -1;
+    let group  = [];
+    let idx    = 0;
+    let active = false; // true only while user is navigating with arrow keys
 
-    function clearFocus() {
+    function clearVisual() {
       group.forEach(b => { b.classList.remove('kb-focus'); b.classList.remove('kb-in-group'); });
     }
 
-    function applyFocus() {
-      clearFocus();
+    function applyVisual() {
       group.forEach(b => b.classList.add('kb-in-group'));
       if (idx >= 0 && idx < group.length) group[idx].classList.add('kb-focus');
     }
 
+    // Called when mouse moves — exits keyboard mode, restoring normal hover styles
+    function onMouse() {
+      if (!active) return;
+      active = false;
+      clearVisual();
+    }
+
     function setGroup(buttons) {
-      clearFocus();
-      group = (buttons || []).filter(b => b && !b.classList.contains('hidden') && !b.disabled);
-      idx = group.length >= 2 ? 0 : -1;
-      applyFocus();
+      clearVisual();
+      group  = (buttons || []).filter(b => b && !b.classList.contains('hidden') && !b.disabled);
+      idx    = 0;
+      active = false; // always start in mouse mode; keyboard mode entered on first arrow press
     }
 
     function move(delta) {
       if (group.length < 2) return false;
-      idx = (idx + delta + group.length) % group.length;
-      applyFocus();
+      if (!active) {
+        // First arrow press enters keyboard mode without moving — focuses first or last button
+        active = true;
+        idx = delta > 0 ? 0 : group.length - 1;
+      } else {
+        idx = (idx + delta + group.length) % group.length;
+      }
+      clearVisual();
+      applyVisual();
       return true;
     }
 
     function activate() {
-      if (idx >= 0 && idx < group.length) { group[idx].click(); return true; }
-      return false;
+      if (!active || idx < 0 || idx >= group.length) return false;
+      group[idx].click();
+      return true;
     }
 
-    function clear() { clearFocus(); group = []; idx = -1; }
-    function isActive() { return idx >= 0; }
+    function clear() { clearVisual(); group = []; idx = 0; active = false; }
+    function isActive() { return active && group.length > 0; }
 
-    return { setGroup, move, activate, clear, isActive };
+    return { setGroup, onMouse, move, activate, clear, isActive };
   })();
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1426,6 +1441,9 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
         }
       });
     });
+
+    // Exit keyboard nav mode the moment the mouse moves
+    document.addEventListener('mousemove', () => KeyNav.onMouse(), { passive: true });
 
     // Arrow key navigation for multi-button screens and modals
     document.addEventListener('keydown', (e) => {
