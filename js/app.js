@@ -48,6 +48,46 @@
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
+  //  KEYBOARD NAVIGATION — arrow key focus for multi-button screens/modals
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const KeyNav = (() => {
+    let group = [];
+    let idx   = -1;
+
+    function clearFocus() { group.forEach(b => b.classList.remove('kb-focus')); }
+
+    function applyFocus() {
+      clearFocus();
+      if (idx >= 0 && idx < group.length) group[idx].classList.add('kb-focus');
+    }
+
+    function setGroup(buttons) {
+      clearFocus();
+      group = (buttons || []).filter(b => b && !b.classList.contains('hidden') && !b.disabled);
+      idx = group.length >= 2 ? 0 : -1;
+      applyFocus();
+    }
+
+    function move(delta) {
+      if (group.length < 2) return false;
+      idx = (idx + delta + group.length) % group.length;
+      applyFocus();
+      return true;
+    }
+
+    function activate() {
+      if (idx >= 0 && idx < group.length) { group[idx].click(); return true; }
+      return false;
+    }
+
+    function clear() { clearFocus(); group = []; idx = -1; }
+    function isActive() { return idx >= 0; }
+
+    return { setGroup, move, activate, clear, isActive };
+  })();
+
+  // ═══════════════════════════════════════════════════════════════════════════
   //  KEY INFO — finger and reach descriptions for tutorials
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -150,6 +190,16 @@
     if (name === 'lessons')  renderLessonSelect();
     if (name === 'history')  renderHistory();
     if (name === 'settings') renderSettings();
+
+    // Keyboard nav for multi-button screens
+    if (name === 'welcome') {
+      KeyNav.setGroup([
+        document.getElementById('btn-start'),
+        document.getElementById('btn-import-welcome'),
+      ]);
+    } else {
+      KeyNav.clear();
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -777,6 +827,13 @@
 
     // AI feedback
     fetchAiFeedback(sessionData);
+
+    // Keyboard nav — filter out hidden buttons (next-lesson may be hidden)
+    KeyNav.setGroup([
+      document.getElementById('btn-retry'),
+      document.getElementById('btn-next-lesson'),
+      document.getElementById('btn-lessons-from-summary'),
+    ]);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1240,6 +1297,10 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
 
   function confirmReset() {
     document.getElementById('modal-reset').classList.add('open');
+    KeyNav.setGroup([
+      document.getElementById('btn-cancel-reset'),
+      document.getElementById('btn-confirm-reset'),
+    ]);
   }
 
   function executeReset() {
@@ -1350,13 +1411,31 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     const cancelResetBtn = document.getElementById('btn-cancel-reset');
     if (cancelResetBtn) cancelResetBtn.addEventListener('click', () => {
       document.getElementById('modal-reset').classList.remove('open');
+      KeyNav.clear();
     });
 
     // Close modals on overlay click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) overlay.classList.remove('open');
+        if (e.target === overlay) {
+          overlay.classList.remove('open');
+          KeyNav.clear();
+        }
       });
+    });
+
+    // Arrow key navigation for multi-button screens and modals
+    document.addEventListener('keydown', (e) => {
+      if (State.currentScreen === 'session') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        if (KeyNav.move(-1)) e.preventDefault();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        if (KeyNav.move(1)) e.preventDefault();
+      } else if ((e.key === ' ' || e.key === 'Enter') && KeyNav.isActive()) {
+        e.preventDefault();
+        KeyNav.activate();
+      }
     });
 
     // Typing area click to focus

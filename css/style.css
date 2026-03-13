@@ -317,6 +317,15 @@ input:focus, select:focus, textarea:focus {
 }
 .btn-secondary:hover { color: var(--text); filter: none; background: var(--border); }
 
+/* Keyboard navigation focus — arrow keys highlight the active button */
+.kb-focus {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  filter: none !important;
+  outline: none;
+}
+
 /* ─── Lesson Select Screen ───────────────────────────────────────────────────── */
 
 #screen-lessons h2 {
