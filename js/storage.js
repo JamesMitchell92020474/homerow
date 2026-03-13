@@ -26,6 +26,7 @@ window.Storage = (() => {
         seenHandTutorial: false,
         seenStrictPrompt: false,
       },
+      achievements: {}, // { "achievement_id": { unlockedAt: "ISO date" } }
     };
   }
 
@@ -39,6 +40,7 @@ window.Storage = (() => {
       // Merge with defaults to handle schema upgrades gracefully
       return Object.assign({}, defaults(), data, {
         preferences: Object.assign({}, defaults().preferences, data.preferences || {}),
+        achievements: Object.assign({}, defaults().achievements, data.achievements || {}),
       });
     } catch (e) {
       console.warn('HomeRow: failed to parse localStorage data', e);
@@ -168,6 +170,21 @@ window.Storage = (() => {
     savePreference('apiKey', key);
   }
 
+  // ─── Achievements ─────────────────────────────────────────────────────────────
+
+  function getAchievements() {
+    return (getAll() || defaults()).achievements || {};
+  }
+
+  function unlockAchievement(id) {
+    const data = getAll() || defaults();
+    if (!data.achievements) data.achievements = {};
+    if (data.achievements[id]) return false; // already unlocked
+    data.achievements[id] = { unlockedAt: new Date().toISOString() };
+    saveAll(data);
+    return true;
+  }
+
   // ─── Export / Import ─────────────────────────────────────────────────────────
 
   function exportData() {
@@ -231,6 +248,8 @@ window.Storage = (() => {
     savePreference,
     getApiKey,
     saveApiKey,
+    getAchievements,
+    unlockAchievement,
     exportData,
     importData,
     clearAll,

@@ -164,6 +164,10 @@ All data is stored under a single key: `homerow_data`.
     theme: "dark",                     // "dark" | "light"
     seenHandTutorial: false,           // True after hand placement tutorial is dismissed once
     seenStrictPrompt: false            // True after one-time Strict Mode prompt is dismissed
+  },
+
+  achievements: {                      // Keyed by achievement ID
+    "sharpshooter": { unlockedAt: "2025-01-15T10:30:00Z" }
   }
 }
 ```
@@ -389,6 +393,45 @@ document.addEventListener('keydown', onKey);
 
 ---
 
+## Achievements System
+
+### Data
+
+`ACHIEVEMENTS` is a const array in `app.js` (defined before `init()`). Each entry:
+```javascript
+{
+  id: 'sharpshooter',       // unique snake_case ID
+  name: 'Sharpshooter',     // display name
+  description: '...',       // shown in card and unlock banner
+  platinum: true,           // optional — only set on The HomeRow Legend
+  icon: `<svg .../>`,       // inline SVG string, uses currentColor
+  check: (sessionData, allStorageData) => boolean
+}
+```
+
+The 12 regular achievements cover: accuracy (95%, 100%, 5-in-a-row), speed (30/50/70 WPM), streaks (3/7 consecutive days), phase completion (beginner/intermediate/advanced), and problem key recovery. The platinum **The HomeRow Legend** checks that all 12 others are unlocked.
+
+### Storage
+
+`Storage.getAchievements()` returns `{ [id]: { unlockedAt: ISO string } }`.
+`Storage.unlockAchievement(id)` writes the entry and returns `true` if newly unlocked, `false` if already had it. Achievements are merged (not overwritten) in `getAll()` so imports don't lose progress.
+
+### Checking and rendering
+
+`checkAchievements(sessionData)` is called inside `renderSummary()` after all session data is saved. It runs every achievement's `check()` against the current storage snapshot, unlocks newly earned ones, and returns the array of newly unlocked achievement objects.
+
+`renderNewAchievements(newlyUnlocked)` shows/hides the `#new-achievements-banner` on the summary screen with a gold banner listing each newly earned achievement and its icon.
+
+`renderAchievements()` is called by `showScreen('achievements')`. It renders the 12 regular cards into `#achievements-grid` (CSS grid), then appends the platinum card centred below in a `.achievements-platinum-row` div. Locked cards get `.locked` (40% opacity); unlocked get `.unlocked` (blue left border); platinum unlocked gets `.platinum.unlocked` (gold styling throughout).
+
+`getMaxConsecutiveDays(sessions)` is a helper that computes the longest streak of calendar days with at least one session.
+
+### Screen
+
+`#screen-achievements` is a restorable screen (added to the `restorable` array in `init()`). Nav button: `<button class="nav-btn" data-screen="achievements">Achievements</button>`.
+
+---
+
 ## Summary Screen
 
 `renderSummary(sessionData, unlocked, nextLesson)` in `app.js` is called before `showScreen('summary')`. It:
@@ -402,7 +445,8 @@ document.addEventListener('keydown', onKey);
 7. Syncs the **Strict Mode toggle** (`#summary-strict-check`) with `State.strictMode`. The toggle updates Settings and `State` in both directions.
 8. Renders problem key chips.
 9. Shows/hides the **Next Lesson** button based on whether the next lesson is now unlocked.
-10. Calls `fetchAiFeedback()`.
+10. Calls `checkAchievements()` and `renderNewAchievements()` — always runs regardless of pass/fail.
+11. Calls `fetchAiFeedback()`.
 
 KeyNav for the summary is set in `showScreen('summary')`, not in `renderSummary()`.
 

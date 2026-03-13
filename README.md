@@ -186,6 +186,30 @@ This is a good place to check in weekly and see your overall trend. Don't get di
 
 ---
 
+## Achievements
+
+The **Achievements** screen tracks 13 milestones you can earn through practice. Locked achievements are shown dimly so you always know what to work toward. When you earn one, a gold banner appears on the Session Summary screen — even if you didn't pass the lesson that session.
+
+| Achievement | How to earn it |
+|-------------|----------------|
+| Sharpshooter | Complete a session with 95%+ accuracy |
+| Ghost Fingers | Complete a session with 100% accuracy |
+| Iron Discipline | Achieve 95%+ accuracy in 5 sessions in a row |
+| Up to Speed | Hit 30 WPM in a session |
+| Full Send | Hit 50 WPM in a session |
+| Keyboard Ninja | Hit 70 WPM in a session |
+| Showing Up | Complete sessions on 3 consecutive days |
+| Habit Formed | Complete sessions on 7 consecutive days |
+| Home Base | Complete all Beginner lessons (1–7) |
+| Levelling Up | Complete all Intermediate lessons (8–14) |
+| The Full Board | Complete all Advanced lessons (15–20) |
+| Redemption Arc | Bring a problem key's error rate below 10% after extensive practice |
+| **The HomeRow Legend** ⭐ | Unlock every other achievement |
+
+Achievements are saved as part of your progress data and are included in Save/Load Progress exports.
+
+---
+
 ## Tips for Best Results
 
 - **Practice for 15–20 minutes daily** rather than one long session per week. Consistency beats intensity.

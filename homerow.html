@@ -28,6 +28,7 @@
     <nav id="toolbar-nav">
       <button class="nav-btn" data-screen="lessons">Lessons</button>
       <button class="nav-btn" data-screen="history">History</button>
+      <button class="nav-btn" data-screen="achievements">Achievements</button>
       <button class="nav-btn" data-screen="settings">Settings</button>
     </nav>
 
@@ -232,6 +233,12 @@
       </div>
     </div>
 
+    <!-- New achievements (shown when earned this session) -->
+    <div id="new-achievements-banner" class="new-achievements-banner hidden">
+      <h3>🏆 Achievement Unlocked!</h3>
+      <div id="new-achievements-list" class="new-achievements-list"></div>
+    </div>
+
     <!-- Problem keys -->
     <div class="problem-keys-section">
       <h3>Problem Keys This Session</h3>
@@ -264,6 +271,15 @@
       <button id="btn-save-summary" class="btn-secondary">Save Progress</button>
     </div>
 
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN: ACHIEVEMENTS
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-achievements" class="screen">
+    <h2>Achievements</h2>
+    <p class="subtitle">Milestones earned through your practice. Keep going — there's always another to unlock.</p>
+    <div id="achievements-grid" class="achievements-grid"></div>
   </main>
 
   <!-- ═══════════════════════════════════════════════════════════

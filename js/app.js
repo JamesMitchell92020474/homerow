@@ -165,6 +165,214 @@
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
+  //  ACHIEVEMENTS
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  function getMaxConsecutiveDays(sessions) {
+    if (!sessions || sessions.length === 0) return 0;
+    const dates = [...new Set(sessions.map(s => s.date.split('T')[0]))].sort();
+    if (dates.length === 1) return 1;
+    let maxStreak = 1, streak = 1;
+    for (let i = 1; i < dates.length; i++) {
+      const diff = (new Date(dates[i]) - new Date(dates[i - 1])) / 86400000;
+      if (diff === 1) { streak++; maxStreak = Math.max(maxStreak, streak); }
+      else streak = 1;
+    }
+    return maxStreak;
+  }
+
+  const ACHIEVEMENTS = [
+    {
+      id: 'sharpshooter',
+      name: 'Sharpshooter',
+      description: 'Complete a session with 95% accuracy or better.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="20" r="13"/><circle cx="20" cy="20" r="6"/><circle cx="20" cy="20" r="2" fill="currentColor" stroke="none"/><line x1="20" y1="3" x2="20" y2="11"/><line x1="20" y1="29" x2="20" y2="37"/><line x1="3" y1="20" x2="11" y2="20"/><line x1="29" y1="20" x2="37" y2="20"/></svg>`,
+      check: (s) => s.accuracy >= 95,
+    },
+    {
+      id: 'ghost_fingers',
+      name: 'Ghost Fingers',
+      description: 'Complete a session with 100% accuracy.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 34 C6 36 4 34 4 34 L4 17 C4 9 11 4 20 4 C29 4 36 9 36 17 L36 34 C36 34 34 36 32 34 C30 32 28 34 26 34 C24 32 22 34 20 34 C18 32 16 34 14 34 C12 32 10 34 8 34 Z"/><circle cx="15" cy="18" r="2" fill="currentColor" stroke="none"/><circle cx="25" cy="18" r="2" fill="currentColor" stroke="none"/></svg>`,
+      check: (s) => s.accuracy === 100,
+    },
+    {
+      id: 'iron_discipline',
+      name: 'Iron Discipline',
+      description: 'Achieve 95% accuracy or better in 5 sessions in a row.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4 L32 9 L32 20 C32 28 26 34 20 37 C14 34 8 28 8 20 L8 9 Z"/><polyline points="14,21 18,25 27,15"/></svg>`,
+      check: (s, data) => {
+        const ss = data.sessions;
+        return ss.length >= 5 && ss.slice(-5).every(x => x.accuracy >= 95);
+      },
+    },
+    {
+      id: 'up_to_speed',
+      name: 'Up to Speed',
+      description: 'Hit 30 WPM or more in a session.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 30 A16 16 0 0 1 34 30"/><line x1="7.5" y1="33" x2="10.5" y2="30"/><line x1="32.5" y1="33" x2="29.5" y2="30"/><line x1="20" y1="14" x2="20" y2="17"/><line x1="20" y1="30" x2="28" y2="21" stroke-width="2.5"/><circle cx="20" cy="30" r="2" fill="currentColor" stroke="none"/></svg>`,
+      check: (s) => s.wpm >= 30,
+    },
+    {
+      id: 'full_send',
+      name: 'Full Send',
+      description: 'Hit 50 WPM or more in a session.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 30 A16 16 0 0 1 34 30"/><line x1="7.5" y1="33" x2="10.5" y2="30"/><line x1="32.5" y1="33" x2="29.5" y2="30"/><line x1="20" y1="14" x2="20" y2="17"/><line x1="20" y1="30" x2="32" y2="18" stroke-width="2.5"/><circle cx="20" cy="30" r="2" fill="currentColor" stroke="none"/></svg>`,
+      check: (s) => s.wpm >= 50,
+    },
+    {
+      id: 'keyboard_ninja',
+      name: 'Keyboard Ninja',
+      description: 'Hit 70 WPM or more in a session.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4 L24 16 L36 20 L24 24 L20 36 L16 24 L4 20 L16 16 Z"/></svg>`,
+      check: (s) => s.wpm >= 70,
+    },
+    {
+      id: 'showing_up',
+      name: 'Showing Up',
+      description: 'Complete sessions on 3 consecutive days.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="8" width="28" height="26" rx="3"/><line x1="6" y1="16" x2="34" y2="16"/><line x1="14" y1="5" x2="14" y2="11"/><line x1="26" y1="5" x2="26" y2="11"/><circle cx="14" cy="24" r="1.5" fill="currentColor" stroke="none"/><circle cx="20" cy="24" r="1.5" fill="currentColor" stroke="none"/><circle cx="26" cy="24" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+      check: (s, data) => getMaxConsecutiveDays(data.sessions) >= 3,
+    },
+    {
+      id: 'habit_formed',
+      name: 'Habit Formed',
+      description: 'Complete sessions on 7 consecutive days.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 36 C13 36 8 30 8 24 C8 18 12 14 16 10 C16 15 18 17 20 17 C20 17 15 10 20 4 C22 10 26 15 28 20 C30 16 30 12 28 8 C34 13 32 20 32 24 C32 30 27 36 20 36 Z"/></svg>`,
+      check: (s, data) => getMaxConsecutiveDays(data.sessions) >= 7,
+    },
+    {
+      id: 'home_base',
+      name: 'Home Base',
+      description: 'Complete all Beginner lessons (1–7).',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,21 20,7 34,21"/><path d="M11 17 L11 34 L29 34 L29 17"/><rect x="15" y="25" width="10" height="9"/></svg>`,
+      check: (s, data) => {
+        const p = data.lessonProgress || {};
+        return [1,2,3,4,5,6,7].every(id => p[id] && p[id].completed);
+      },
+    },
+    {
+      id: 'levelling_up',
+      name: 'Levelling Up',
+      description: 'Complete all Intermediate lessons (8–14).',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="28" x2="32" y2="28"/><line x1="8" y1="34" x2="32" y2="34"/><polyline points="20,6 20,24"/><polyline points="13,13 20,6 27,13"/></svg>`,
+      check: (s, data) => {
+        const p = data.lessonProgress || {};
+        return [8,9,10,11,12,13,14].every(id => p[id] && p[id].completed);
+      },
+    },
+    {
+      id: 'full_board',
+      name: 'The Full Board',
+      description: 'Complete all Advanced lessons (15–20).',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="32" height="18" rx="3"/><rect x="8" y="15" width="4" height="4" rx="1"/><rect x="14" y="15" width="4" height="4" rx="1"/><rect x="20" y="15" width="4" height="4" rx="1"/><rect x="26" y="15" width="4" height="4" rx="1"/><rect x="11" y="21" width="4" height="4" rx="1"/><rect x="19" y="21" width="10" height="4" rx="1"/></svg>`,
+      check: (s, data) => {
+        const p = data.lessonProgress || {};
+        return [15,16,17,18,19,20].every(id => p[id] && p[id].completed);
+      },
+    },
+    {
+      id: 'redemption_arc',
+      name: 'Redemption Arc',
+      description: 'Turn a problem key around — bring a key\'s error rate below 10% after extensive practice.',
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 34 C10 34 13 28 17 23 C21 18 24 15 28 11 C30 9 32 8 34 7"/><polyline points="27,7 34,7 34,14"/></svg>`,
+      check: (s, data) => {
+        const keys = data.problemKeys || {};
+        return Object.values(keys).some(k => k.total >= 30 && (k.misses / k.total) < 0.10);
+      },
+    },
+    {
+      id: 'homerow_legend',
+      name: 'The HomeRow Legend',
+      description: 'Unlock every other achievement. The rarest honour HomeRow can bestow.',
+      platinum: true,
+      icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16 L8 10 L14 14 L20 4 L26 14 L32 10 L32 16 C32 26 27 33 20 36 C13 33 8 26 8 16 Z"/><polyline points="15,19 18,23 26,15"/></svg>`,
+      check: (s, data) => {
+        const unlocked = data.achievements || {};
+        return ACHIEVEMENTS.filter(a => !a.platinum).every(a => !!unlocked[a.id]);
+      },
+    },
+  ];
+
+  function checkAchievements(sessionData) {
+    const allData = Storage.getAll();
+    const already = allData.achievements || {};
+    const newlyUnlocked = [];
+    for (const a of ACHIEVEMENTS) {
+      if (already[a.id]) continue;
+      try {
+        if (a.check(sessionData, allData)) {
+          Storage.unlockAchievement(a.id);
+          newlyUnlocked.push(a);
+        }
+      } catch (e) { /* silent */ }
+    }
+    return newlyUnlocked;
+  }
+
+  function renderNewAchievements(newlyUnlocked) {
+    const banner = document.getElementById('new-achievements-banner');
+    const list   = document.getElementById('new-achievements-list');
+    if (!banner || !list) return;
+    if (newlyUnlocked.length === 0) { banner.classList.add('hidden'); return; }
+    banner.classList.remove('hidden');
+    list.innerHTML = '';
+    newlyUnlocked.forEach(a => {
+      const item = document.createElement('div');
+      item.className = 'new-achievement-item';
+      item.innerHTML = `
+        <div class="new-achievement-icon">${a.icon}</div>
+        <div>
+          <div class="new-achievement-name">${escapeHtml(a.name)}</div>
+          <div class="new-achievement-desc">${escapeHtml(a.description)}</div>
+        </div>`;
+      list.appendChild(item);
+    });
+  }
+
+  function renderAchievements() {
+    const grid = document.getElementById('achievements-grid');
+    if (!grid) return;
+    const unlocked = Storage.getAchievements();
+
+    function makeCard(a) {
+      const isUnlocked = !!unlocked[a.id];
+      const card = document.createElement('div');
+      card.className = 'achievement-card' +
+        (isUnlocked ? ' unlocked' : ' locked') +
+        (a.platinum ? ' platinum' : '');
+      const dateStr = isUnlocked
+        ? `<div class="achievement-date">Unlocked ${new Date(unlocked[a.id].unlockedAt).toLocaleDateString()}</div>`
+        : '';
+      card.innerHTML = `
+        <div class="achievement-icon">${a.icon}</div>
+        <div class="achievement-info">
+          <div class="achievement-name">${escapeHtml(a.name)}</div>
+          <div class="achievement-desc">${escapeHtml(a.description)}</div>
+          ${dateStr}
+        </div>`;
+      return card;
+    }
+
+    // Clear grid and any previous platinum row
+    grid.innerHTML = '';
+    const oldRow = document.querySelector('.achievements-platinum-row');
+    if (oldRow) oldRow.remove();
+
+    // Regular achievements fill the grid
+    ACHIEVEMENTS.filter(a => !a.platinum).forEach(a => grid.appendChild(makeCard(a)));
+
+    // Platinum card sits centred below in its own row
+    const platinum = ACHIEVEMENTS.find(a => a.platinum);
+    if (platinum) {
+      const row = document.createElement('div');
+      row.className = 'achievements-platinum-row';
+      row.appendChild(makeCard(platinum));
+      grid.after(row);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   //  INIT
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -189,7 +397,7 @@
       Storage.initFresh();
       showScreen('welcome');
     } else {
-      const restorable = ['welcome', 'lessons', 'history', 'settings'];
+      const restorable = ['welcome', 'lessons', 'history', 'achievements', 'settings'];
       const last = sessionStorage.getItem('homerow_screen');
       showScreen(restorable.includes(last) ? last : 'lessons');
     }
@@ -221,9 +429,10 @@
     });
 
     // Screen-specific rendering
-    if (name === 'lessons')  renderLessonSelect();
-    if (name === 'history')  renderHistory();
-    if (name === 'settings') renderSettings();
+    if (name === 'lessons')      renderLessonSelect();
+    if (name === 'history')      renderHistory();
+    if (name === 'achievements') renderAchievements();
+    if (name === 'settings')     renderSettings();
 
     // Keyboard nav for multi-button screens
     if (name === 'welcome') {
@@ -967,6 +1176,10 @@
         strictPrompt.classList.add('hidden');
       }
     }
+
+    // Achievements
+    const newlyUnlocked = checkAchievements(sessionData);
+    renderNewAchievements(newlyUnlocked);
 
     // AI feedback
     fetchAiFeedback(sessionData);
