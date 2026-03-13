@@ -227,6 +227,53 @@ input:focus, select:focus, textarea:focus {
   max-width: 480px;
 }
 
+/* Home row key display on welcome screen */
+.welcome-homerow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.welcome-spacer { width: 1.5rem; flex-shrink: 0; }
+.welcome-key {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  position: relative;
+  transition: border-color var(--transition);
+}
+.welcome-key[data-finger="left-pinky"],
+.welcome-key[data-finger="right-pinky"]  { border-color: var(--finger-pinky); color: var(--finger-pinky); }
+.welcome-key[data-finger="left-ring"],
+.welcome-key[data-finger="right-ring"]   { border-color: var(--finger-ring);  color: var(--finger-ring); }
+.welcome-key[data-finger="left-middle"],
+.welcome-key[data-finger="right-middle"] { border-color: var(--finger-middle); color: var(--finger-middle); }
+.welcome-key[data-finger="left-index"],
+.welcome-key[data-finger="right-index"]  { border-color: var(--finger-index); color: var(--finger-index); }
+.welcome-anchor {
+  position: relative;
+}
+.welcome-anchor::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 3px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
 .welcome-phases {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -980,13 +1027,59 @@ input:focus, select:focus, textarea:focus {
 .modal-wide { max-width: 580px; }
 .btn-full   { width: 100%; margin-top: 1.5rem; }
 
-/* Home row visual */
-.tutorial-homerow {
+/* Tutorial keyboard layout */
+.tutorial-keyboard {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0 0.5rem;
+}
+.tutorial-hand-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tutorial-hand-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+.tutorial-hand-keys {
+  display: flex;
   gap: 0.4rem;
-  margin: 1.5rem 0 0.75rem;
+}
+.tutorial-key-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+.tutorial-key-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  opacity: 0.85;
+}
+.tutorial-key-label[data-finger="left-pinky"],
+.tutorial-key-label[data-finger="right-pinky"]  { color: var(--finger-pinky); }
+.tutorial-key-label[data-finger="left-ring"],
+.tutorial-key-label[data-finger="right-ring"]   { color: var(--finger-ring); }
+.tutorial-key-label[data-finger="left-middle"],
+.tutorial-key-label[data-finger="right-middle"] { color: var(--finger-middle); }
+.tutorial-key-label[data-finger="left-index"],
+.tutorial-key-label[data-finger="right-index"]  { color: var(--finger-index); }
+.tutorial-key-label[data-finger="thumb"]        { color: var(--finger-thumb); }
+.tutorial-spacebar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.5rem 0 1.5rem;
 }
 .tutorial-spacer { width: 2rem; flex-shrink: 0; }
 .tutorial-key {
@@ -1027,41 +1120,7 @@ input:focus, select:focus, textarea:focus {
   opacity: 0.7;
 }
 
-/* Finger legend below home row */
-.tutorial-finger-legend {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-.legend-spacer { width: 2rem; flex-shrink: 0; }
-.legend-item {
-  width: 52px;
-  text-align: center;
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  opacity: 0.8;
-}
-.legend-item[data-finger="left-pinky"],
-.legend-item[data-finger="right-pinky"]  { color: var(--finger-pinky); }
-.legend-item[data-finger="left-ring"],
-.legend-item[data-finger="right-ring"]   { color: var(--finger-ring); }
-.legend-item[data-finger="left-middle"],
-.legend-item[data-finger="right-middle"] { color: var(--finger-middle); }
-.legend-item[data-finger="left-index"],
-.legend-item[data-finger="right-index"]  { color: var(--finger-index); }
-.legend-item[data-finger="thumb"]        { color: var(--finger-thumb); }
-
-/* Spacebar row */
-.tutorial-spacebar-row {
-  display: flex;
-  justify-content: center;
-  margin: 0.5rem 0 0.75rem;
-}
+/* Spacebar key */
 .tutorial-spacebar {
   width: 280px;
   height: 40px;
@@ -1090,6 +1149,14 @@ input:focus, select:focus, textarea:focus {
   color: var(--accent);
 }
 .tutorial-tips li strong { color: var(--text); }
+
+/* New key intro note (e.g. "Left Hand Home Row") */
+.new-keys-note {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin: -0.5rem 0 0.25rem;
+}
 
 /* New key cards */
 .new-key-cards {

@@ -38,6 +38,18 @@
       A structured touch-typing tutor that takes you from home row to full keyboard fluency — with real coaching after every session.
     </p>
 
+    <div class="welcome-homerow">
+      <div class="welcome-key" data-finger="left-pinky">A</div>
+      <div class="welcome-key" data-finger="left-ring">S</div>
+      <div class="welcome-key" data-finger="left-middle">D</div>
+      <div class="welcome-key welcome-anchor" data-finger="left-index">F</div>
+      <div class="welcome-spacer"></div>
+      <div class="welcome-key welcome-anchor" data-finger="right-index">J</div>
+      <div class="welcome-key" data-finger="right-middle">K</div>
+      <div class="welcome-key" data-finger="right-ring">L</div>
+      <div class="welcome-key" data-finger="right-pinky">;</div>
+    </div>
+
     <div class="welcome-phases">
       <div class="phase-card">
         <div class="phase-name">Beginner · Lessons 1–7</div>
@@ -357,32 +369,54 @@
     <h3>Hand Position — Before You Start</h3>
     <p>Touch typing starts with your fingers in the right place. Spend 30 seconds on this and every lesson will go more smoothly.</p>
 
-    <div class="tutorial-homerow">
-      <div class="tutorial-key" data-finger="left-pinky">A</div>
-      <div class="tutorial-key" data-finger="left-ring">S</div>
-      <div class="tutorial-key" data-finger="left-middle">D</div>
-      <div class="tutorial-key tutorial-anchor" data-finger="left-index">F</div>
+    <div class="tutorial-keyboard">
+      <div class="tutorial-hand-group">
+        <div class="tutorial-hand-label">Left Hand — Home Row</div>
+        <div class="tutorial-hand-keys">
+          <div class="tutorial-key-col">
+            <div class="tutorial-key" data-finger="left-pinky">A</div>
+            <span class="tutorial-key-label" data-finger="left-pinky">Pinky</span>
+          </div>
+          <div class="tutorial-key-col">
+            <div class="tutorial-key" data-finger="left-ring">S</div>
+            <span class="tutorial-key-label" data-finger="left-ring">Ring</span>
+          </div>
+          <div class="tutorial-key-col">
+            <div class="tutorial-key" data-finger="left-middle">D</div>
+            <span class="tutorial-key-label" data-finger="left-middle">Middle</span>
+          </div>
+          <div class="tutorial-key-col">
+            <div class="tutorial-key tutorial-anchor" data-finger="left-index">F</div>
+            <span class="tutorial-key-label" data-finger="left-index">Index</span>
+          </div>
+        </div>
+      </div>
       <div class="tutorial-spacer"></div>
-      <div class="tutorial-key tutorial-anchor" data-finger="right-index">J</div>
-      <div class="tutorial-key" data-finger="right-middle">K</div>
-      <div class="tutorial-key" data-finger="right-ring">L</div>
-      <div class="tutorial-key" data-finger="right-pinky">;</div>
+      <div class="tutorial-hand-group">
+        <div class="tutorial-hand-label">Right Hand — Home Row</div>
+        <div class="tutorial-hand-keys">
+          <div class="tutorial-key-col">
+            <div class="tutorial-key tutorial-anchor" data-finger="right-index">J</div>
+            <span class="tutorial-key-label" data-finger="right-index">Index</span>
+          </div>
+          <div class="tutorial-key-col">
+            <div class="tutorial-key" data-finger="right-middle">K</div>
+            <span class="tutorial-key-label" data-finger="right-middle">Middle</span>
+          </div>
+          <div class="tutorial-key-col">
+            <div class="tutorial-key" data-finger="right-ring">L</div>
+            <span class="tutorial-key-label" data-finger="right-ring">Ring</span>
+          </div>
+          <div class="tutorial-key-col">
+            <div class="tutorial-key" data-finger="right-pinky">;</div>
+            <span class="tutorial-key-label" data-finger="right-pinky">Pinky</span>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="tutorial-spacebar-row">
+    <div class="tutorial-spacebar-col">
       <div class="tutorial-key tutorial-spacebar" data-finger="thumb">Space</div>
-    </div>
-
-    <div class="tutorial-finger-legend">
-      <span class="legend-item" data-finger="left-pinky">Pinky</span>
-      <span class="legend-item" data-finger="left-ring">Ring</span>
-      <span class="legend-item" data-finger="left-middle">Middle</span>
-      <span class="legend-item" data-finger="left-index">Index</span>
-      <span class="legend-item legend-thumb" data-finger="thumb">Thumb</span>
-      <span class="legend-item" data-finger="right-index">Index</span>
-      <span class="legend-item" data-finger="right-middle">Middle</span>
-      <span class="legend-item" data-finger="right-ring">Ring</span>
-      <span class="legend-item" data-finger="right-pinky">Pinky</span>
+      <span class="tutorial-key-label" data-finger="thumb">Thumb</span>
     </div>
 
     <ul class="tutorial-tips">
@@ -402,6 +436,7 @@
 <div id="modal-new-keys" class="modal-overlay">
   <div class="modal modal-wide">
     <h3>New Keys This Lesson</h3>
+    <p id="new-keys-note" class="new-keys-note" hidden></p>
     <p>Here's which finger to use for each new key. The keyboard diagram will highlight the correct finger as you type — don't worry about memorising this now.</p>
     <div id="new-key-cards" class="new-key-cards"></div>
     <button id="btn-new-keys-done" class="btn-primary btn-full">Start Session</button>

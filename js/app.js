@@ -292,6 +292,16 @@
         </div>`;
     }).join('');
 
+    const noteEl = document.getElementById('new-keys-note');
+    if (noteEl) {
+      if (lesson.newKeysNote) {
+        noteEl.textContent = lesson.newKeysNote;
+        noteEl.hidden = false;
+      } else {
+        noteEl.hidden = true;
+      }
+    }
+
     modal.classList.add('open');
     const btn = document.getElementById('btn-new-keys-done');
 
