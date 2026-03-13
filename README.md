@@ -65,6 +65,34 @@ If your accuracy drops below 80% on any drill, HomeRow will repeat that drill be
 
 ---
 
+## The Welcome Screen
+
+When you open HomeRow you'll see the welcome screen with a colour-coded home row key display (A S D F · J K L ;). Each key is bordered in the colour of the finger that presses it — a quick visual reminder of what you'll be learning from the very first lesson.
+
+---
+
+## Hand Placement Tutorial
+
+The first time you start a session, HomeRow shows a one-time hand placement guide. It displays the full home row split into two labelled groups — **Left Hand** (A S D F) and **Right Hand** (J K L ;) — with each key's finger name shown directly below it, and the spacebar below both groups with "Thumb" underneath.
+
+Tips shown in the tutorial:
+- F and J have raised bumps — find home position without looking down
+- Curve fingers lightly — rest them on the keys, not pressing down
+- Return after every keystroke — always come back to home row between reaches
+- Eyes on the screen — the keyboard diagram shows which finger to use at all times
+
+**To dismiss this screen:** click the button, or press **Space** or **Enter**.
+
+---
+
+## New Key Introduction
+
+At the start of any lesson that introduces new keys, HomeRow shows a brief card for each new key: which finger presses it and what the reach feels like. Lessons 1 and 2 include an extra note identifying them as the Left Hand Home Row and Right Hand Home Row respectively.
+
+**To dismiss this screen:** click the button, or press **Space** or **Enter**.
+
+---
+
 ## The Animated Finger Guide
 
 Below the typing area you'll see a keyboard diagram. The key you need to type next is highlighted in blue and pulses gently. Colour-coded borders on each key show which finger to use:

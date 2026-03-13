@@ -84,6 +84,25 @@ Each lesson's `exercises` array contains objects with:
 - `Storage.updateLessonProgress(lessonId, wpm, accuracy)` handles unlock logic and persists best stats.
 - `Lessons.isUnlocked(lessonId)` checks whether the previous lesson has `completed: true`.
 
+### Lesson schema fields
+
+Each lesson object supports:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | yes | Unique integer ID, sequential |
+| `title` | yes | Shown on lesson card and session header |
+| `subtitle` | yes | Key list shown on lesson card |
+| `description` | yes | Longer description shown on lesson card |
+| `newKeysNote` | no | Short note shown in the new-key intro modal (e.g. "Left Hand Home Row"). If absent, no note is shown. |
+| `phase` | yes | `"beginner"` / `"intermediate"` / `"advanced"` |
+| `newKeys` | yes | Keys introduced this lesson — drives the new-key intro modal |
+| `allKeys` | yes | All keys the student has learned so far — gates problem-key drill injection |
+| `targetWpm` | yes | WPM required to unlock the next lesson |
+| `targetAccuracy` | yes | Accuracy % required to unlock next lesson |
+| `sessionLength` | yes | `{ min, max }` in minutes — advisory display only |
+| `exercises` | yes | Array of exercise objects (see above) |
+
 ### Adding New Lessons
 
 Append to the `LESSON_DATA` array in `js/lessons.js`. Follow the existing schema exactly. Use IDs in sequence. Choose a phase and add the new keys to `allKeys` (all keys the student has learned so far). The app will pick them up automatically.
@@ -140,7 +159,8 @@ All data is stored under a single key: `homerow_data`.
     soundEnabled: true,                // Sound on/off — persists across sessions
     strictMode: false,                 // Strict Mode on/off
     apiKey: "sk-ant-...",              // Anthropic API key (local use only)
-    theme: "dark"                      // Reserved for future theme switching
+    theme: "dark",                     // "dark" | "light"
+    seenHandTutorial: false            // True after hand placement tutorial is dismissed once
   }
 }
 ```
@@ -249,6 +269,69 @@ Accent, success, error, warning, and info colours are intentionally shared betwe
 
 ---
 
+## Welcome Screen
+
+The welcome screen (`#screen-welcome`) displays a colour-coded home row key graphic (`.welcome-homerow`) between the tagline and the phase cards. Keys use the same finger-colour CSS variables as the session keyboard diagram. F and J show a bump indicator via `.welcome-anchor::after`.
+
+---
+
+## Tutorial Modal Chain
+
+`startSession(lessonId)` in `app.js` chains three steps before the typing session begins:
+
+```
+startSession()
+  → showHandTutorial(onDone)     ← only if !prefs.seenHandTutorial
+    → sets seenHandTutorial = true
+  → showNewKeyIntro(lesson, onDone)  ← only if lesson.newKeys.length > 0
+  → _beginSession(lessonId)
+```
+
+### Hand placement tutorial (`modal-hand-tutorial`)
+
+Shown once ever (guarded by `preferences.seenHandTutorial`). Displays the full home row as two labelled groups:
+
+- **Left Hand — Home Row**: A (pinky) · S (ring) · D (middle) · F (index)
+- **Right Hand — Home Row**: J (index) · K (middle) · L (ring) · ; (pinky)
+
+Each key is wrapped in a `.tutorial-key-col` with the finger label (`.tutorial-key-label`) directly below it. The spacebar sits in a `.tutorial-spacebar-col` below both groups with "Thumb" beneath it.
+
+HTML structure:
+```
+.tutorial-keyboard
+  .tutorial-hand-group  ← "Left Hand — Home Row"
+    .tutorial-hand-keys
+      .tutorial-key-col × 4  (A, S, D, F — each with .tutorial-key-label below)
+  .tutorial-spacer
+  .tutorial-hand-group  ← "Right Hand — Home Row"
+    .tutorial-hand-keys
+      .tutorial-key-col × 4  (J, K, L, ; — each with .tutorial-key-label below)
+.tutorial-spacebar-col
+  .tutorial-spacebar + .tutorial-key-label[data-finger="thumb"]
+```
+
+### New key intro (`modal-new-keys`)
+
+Shown at the start of any lesson where `lesson.newKeys.length > 0`. Renders one `.new-key-card` per new key using `KEY_INFO` data from `app.js`.
+
+If `lesson.newKeysNote` is set, it is shown as a coloured subtitle (`#new-keys-note`, `.new-keys-note`) above the description paragraph. Lessons 1 and 2 use this:
+- Lesson 1: `"Left Hand Home Row — your left fingers rest here between every keystroke."`
+- Lesson 2: `"Right Hand Home Row — these complete all eight home row keys. Both hands are now in position."`
+
+### Modal keyboard dismissal
+
+Both modals support **Space or Enter** as keyboard shortcuts to dismiss, in addition to clicking the button. `showHandTutorial` and `showNewKeyIntro` each add a `keydown` listener that calls the same `dismiss()` function as the button. The listener is removed immediately on dismissal to prevent leaking into the typing session.
+
+```javascript
+function onKey(e) {
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
+}
+document.addEventListener('keydown', onKey);
+// removed inside dismiss() via document.removeEventListener('keydown', onKey)
+```
+
+---
+
 ## AI Feedback Integration
 
 ### Detection logic
@@ -347,7 +430,7 @@ Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Set
 3. Add rendering logic in `app.js → showScreen()` if needed
 
 ### Themes
-`preferences.theme` is reserved for future use. Add CSS class to `<body>` based on the preference and add theme variable overrides in `style.css`.
+`preferences.theme` (`"dark"` / `"light"`) is fully implemented. `applyTheme(theme)` in `app.js` toggles the `light` class on `<body>`. Add additional theme values by extending the CSS variable overrides in `style.css` and wiring them in `applyTheme()`.
 
 ---
 
