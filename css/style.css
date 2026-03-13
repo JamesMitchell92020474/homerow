@@ -36,6 +36,29 @@
   --transition: 0.18s ease;
 }
 
+/* ─── Light Mode Overrides ───────────────────────────────────────────────────── */
+
+body.light {
+  --bg:         #f2f2f7;
+  --surface:    #ffffff;
+  --card:       #e8e8f0;
+  --border:     #d0d0e0;
+  --input-bg:   #fafafd;
+
+  --text:       #1a1a2e;
+  --text-dim:   #55556a;
+  --text-faint: #aaaabc;
+
+  --shadow: 0 4px 24px rgba(0,0,0,0.10);
+
+  /* Finger colours — slightly deeper for contrast on light bg */
+  --finger-pinky:  #b85566;
+  --finger-ring:   #c47a35;
+  --finger-middle: #a89a20;
+  --finger-index:  #3d9458;
+  --finger-thumb:  #3a6be0;
+}
+
 /* ─── Reset & Base ───────────────────────────────────────────────────────────── */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

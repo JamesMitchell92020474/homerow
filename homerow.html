@@ -24,6 +24,7 @@
     </nav>
 
     <div id="toolbar-right">
+      <button id="theme-toggle" title="Switch to light mode">🌙</button>
       <button id="sound-toggle" class="on" title="Sound on — click to mute">🔊</button>
     </div>
   </header>
@@ -250,6 +251,24 @@
 
     <h2>Settings</h2>
     <p class="subtitle">Preferences are saved automatically to your browser.</p>
+
+    <!-- Appearance -->
+    <div class="settings-section">
+      <h3>Appearance</h3>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <label for="setting-theme">Light Mode</label>
+          <p>Switch between the default dark theme and a light theme.</p>
+        </div>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="setting-theme">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
 
     <!-- Sound & Typing -->
     <div class="settings-section">

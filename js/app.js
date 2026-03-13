@@ -69,6 +69,8 @@
     const prefs = Storage.getPreferences();
     State.soundEnabled = prefs.soundEnabled !== false;
     State.strictMode   = prefs.strictMode === true;
+    State.theme        = prefs.theme === 'light' ? 'light' : 'dark';
+    applyTheme(State.theme);
     updateSoundToggleUI();
   }
 
@@ -953,6 +955,10 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
   function renderSettings() {
     const prefs = Storage.getPreferences();
 
+    // Theme toggle
+    const themeCheck = document.getElementById('setting-theme');
+    if (themeCheck) themeCheck.checked = (prefs.theme === 'light');
+
     // Sound toggle
     const soundCheck = document.getElementById('setting-sound');
     if (soundCheck) soundCheck.checked = prefs.soundEnabled !== false;
@@ -999,6 +1005,36 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
       clone.volume = type === 'keypress' ? 0.4 : 0.6;
       clone.play().catch(() => {}); // ignore autoplay errors
     } catch (e) {}
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  THEME TOGGLE
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  function applyTheme(theme) {
+    document.body.classList.toggle('light', theme === 'light');
+    updateThemeToggleUI(theme);
+  }
+
+  function toggleTheme() {
+    State.theme = State.theme === 'light' ? 'dark' : 'light';
+    Storage.savePreference('theme', State.theme);
+    applyTheme(State.theme);
+    // Sync settings checkbox
+    const check = document.getElementById('setting-theme');
+    if (check) check.checked = State.theme === 'light';
+  }
+
+  function updateThemeToggleUI(theme) {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    if (theme === 'light') {
+      btn.textContent = '☀️';
+      btn.title = 'Switch to dark mode';
+    } else {
+      btn.textContent = '🌙';
+      btn.title = 'Switch to light mode';
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1105,6 +1141,10 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
       btn.addEventListener('click', () => showScreen(btn.dataset.screen));
     });
 
+    // Theme toggle (toolbar)
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
     // Sound toggle (toolbar)
     const soundBtn = document.getElementById('sound-toggle');
     if (soundBtn) soundBtn.addEventListener('click', toggleSound);
@@ -1126,6 +1166,13 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     if (lessonsFromSummary) lessonsFromSummary.addEventListener('click', () => showScreen('lessons'));
 
     // Settings
+    const themeSettingCheck = document.getElementById('setting-theme');
+    if (themeSettingCheck) themeSettingCheck.addEventListener('change', () => {
+      State.theme = themeSettingCheck.checked ? 'light' : 'dark';
+      Storage.savePreference('theme', State.theme);
+      applyTheme(State.theme);
+    });
+
     const soundCheck = document.getElementById('setting-sound');
     if (soundCheck) soundCheck.addEventListener('change', () => {
       State.soundEnabled = soundCheck.checked;
