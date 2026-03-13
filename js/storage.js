@@ -173,7 +173,8 @@ window.Storage = (() => {
     const data = getAll() || defaults();
     const json = JSON.stringify(data, null, 2);
     const date = new Date().toISOString().split('T')[0];
-    const filename = `homerow-progress-${date}.json`;
+    const lesson = data.currentLesson || 1;
+    const filename = `homerow-lesson${lesson}-${date}.json`;
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

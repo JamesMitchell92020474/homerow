@@ -27,7 +27,6 @@ homerow/
 ├── server/
 │   ├── proxy.php             Receives session data, calls Anthropic, returns feedback
 │   └── config.php            Holds ANTHROPIC_API_KEY — never commit this file
-├── backups/                  User-exported progress JSON files (gitignored)
 ├── versions/                 Milestone snapshots before major changes (gitignored)
 ├── README.md                 End-user guide
 └── CLAUDE.md                 This file
@@ -162,7 +161,6 @@ All data is stored under a single key: `homerow_data`.
   preferences: {
     soundEnabled: true,                // Sound on/off — persists across sessions
     strictMode: false,                 // Strict Mode on/off
-    apiKey: "sk-ant-...",              // Anthropic API key (local use only)
     theme: "dark",                     // "dark" | "light"
     seenHandTutorial: false            // True after hand placement tutorial is dismissed once
   }
@@ -290,6 +288,8 @@ The welcome screen (`#screen-welcome`) has three sections between the tagline an
 
 4. The **Start Learning / Continue Learning** button (`#btn-start`) — text is set dynamically in `showScreen('welcome')` based on whether `Storage.getAll().sessions` is non-empty. First visit: "Start Learning →". Returning user: "Continue Learning →".
 
+5. The **Load Progress** button (`#btn-import-welcome`) on the welcome screen — calls `triggerImport()` directly, same as the Settings import.
+
 ---
 
 ## Button Styles and Keyboard Navigation
@@ -316,7 +316,8 @@ Transitions:
 
 `KeyNav.setGroup(buttons)` is called with the relevant button elements when a screen is shown or a modal opens. Groups are set for:
 - **Welcome screen**: `[btn-start, btn-import-welcome]` — set inside `showScreen('welcome')`
-- **Session summary**: `[btn-retry, btn-next-lesson, btn-lessons-from-summary]` — set inside `showScreen('summary')`, **after** `renderSummary()` has run and set button visibility. Do not set this group inside `renderSummary()` — `showScreen()` calls `KeyNav.clear()` for all screens unless explicitly handled, so setting it in `renderSummary()` would be immediately overwritten.
+- **Lessons screen**: `[btn-save-lessons, btn-load-lessons]` — set inside `showScreen('lessons')`
+- **Session summary**: `[btn-retry, btn-next-lesson, btn-lessons-from-summary, btn-save-summary]` — set inside `showScreen('summary')`, **after** `renderSummary()` has run and set button visibility. Do not set this group inside `renderSummary()` — `showScreen()` calls `KeyNav.clear()` for all screens unless explicitly handled, so setting it in `renderSummary()` would be immediately overwritten.
 - **Reset modal**: `[btn-cancel-reset, btn-confirm-reset]`
 
 Space or Enter activates the focused button when keyboard mode is active.
@@ -416,7 +417,7 @@ function isHosted() {
 }
 ```
 
-- `file://` protocol → local mode → call Anthropic API directly using `preferences.apiKey`
+- `file://` protocol → local mode → falls back to template feedback (no API key UI in settings)
 - `http://` or `https://` → hosted mode → POST to `./server/proxy.php`
 
 ### Prompt format
@@ -449,8 +450,8 @@ The API key in `config.php` never reaches the browser at any point.
 
 The feedback section always shows something useful. Priority order:
 
-1. **API available** → AI-generated coaching note displayed.
-2. **No API key / no proxy** → `generateTemplateFeedback(sessionData)` is called and its output is displayed, with a small "unlock AI coaching" hint beneath.
+1. **Hosted (proxy available)** → AI-generated coaching note displayed.
+2. **No proxy (local file://)** → `generateTemplateFeedback(sessionData)` is called and its output is displayed silently with no error message.
 3. **API call fails at runtime** → same template feedback, shown silently with no error message.
 
 `generateTemplateFeedback(sessionData)` in `app.js` builds feedback from session data directly:
@@ -484,7 +485,7 @@ HomeRow is designed to be self-hosted on a subdomain such as `homerow.yourdomain
 
 Progress is stored in each user's **browser localStorage**. It is not shared between users or devices. Each browser/device has its own independent progress.
 
-The **Export/Import** feature is the recommended way for users to back up and transfer progress across devices or browsers.
+The **Save/Load Progress** feature is the recommended way for users to back up and transfer progress across devices or browsers. Export filename format: `homerow-lesson{N}-YYYY-MM-DD.json` where N is `currentLesson`.
 
 If a future version requires shared cross-device progress (e.g. for a classroom), a database backend would need to be added. The localStorage schema above is the starting point for that design.
 
@@ -498,10 +499,15 @@ Append to `LESSON_DATA` in `js/lessons.js`. Follow the existing schema.
 ### New settings
 Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Settings screen in `homerow.html`, and wire up the change handler in `bindGlobalEvents()` in `app.js`.
 
+### Screen persistence on refresh
+
+`showScreen(name)` writes the screen name to `sessionStorage` (`homerow_screen`). On `init()`, if the user has existing data, this value is read back and used to restore the last screen. Only the screens `welcome`, `lessons`, `history`, and `settings` are restorable — `session` and `summary` are transient and fall back to `lessons`.
+
 ### New screens
 1. Add a `<main id="screen-name">` block in `homerow.html`
 2. Add a `.nav-btn[data-screen="name"]` button
 3. Add rendering logic in `app.js → showScreen()` if needed
+4. If it should be restorable on refresh, add it to the `restorable` array in `init()`
 
 ### Themes
 `preferences.theme` (`"dark"` / `"light"`) is fully implemented. `applyTheme(theme)` in `app.js` toggles the `light` class on `<body>`. Add additional theme values by extending the CSS variable overrides in `style.css` and wiring them in `applyTheme()`.

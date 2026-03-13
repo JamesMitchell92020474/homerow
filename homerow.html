@@ -85,7 +85,7 @@
 
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
       <button id="btn-start" class="btn-primary">Start Learning →</button>
-      <button id="btn-import-welcome" class="btn-secondary">Import Progress</button>
+      <button id="btn-import-welcome" class="btn-secondary">Load Progress</button>
     </div>
   </main>
 
@@ -96,6 +96,10 @@
     <h2>Choose a Lesson</h2>
     <p class="subtitle">Complete each lesson to unlock the next. Requires 90% accuracy and meeting the WPM target.</p>
     <div id="lessons-grid-root"></div>
+    <div class="lessons-actions">
+      <button id="btn-save-lessons" class="btn-secondary">Save Progress</button>
+      <button id="btn-load-lessons" class="btn-secondary">Load Progress</button>
+    </div>
   </main>
 
   <!-- ═══════════════════════════════════════════════════════════
@@ -216,7 +220,7 @@
     <div class="ai-feedback">
       <h3>Coach Feedback</h3>
       <div id="ai-feedback-text">
-        <span class="unavailable">Add your Anthropic API key in Settings to unlock personalised coaching feedback after each session.</span>
+        <span class="unavailable">Coaching feedback will appear here after your session.</span>
       </div>
     </div>
 
@@ -225,6 +229,7 @@
       <button id="btn-retry" class="btn-secondary">Try Again</button>
       <button id="btn-next-lesson" class="btn-primary hidden">Next Lesson →</button>
       <button id="btn-lessons-from-summary" class="btn-secondary">All Lessons</button>
+      <button id="btn-save-summary" class="btn-secondary">Save Progress</button>
     </div>
 
   </main>
@@ -310,7 +315,7 @@
       <div class="setting-row">
         <div class="setting-info">
           <label for="setting-sound">Sound Effects</label>
-          <p>Play audio feedback on correct and incorrect keystrokes. Uses keypress.wav and error.wav from assets/sounds/.</p>
+          <p>Play audio feedback on correct and incorrect keystrokes.</p>
         </div>
         <div class="toggle-wrap">
           <label class="toggle">
@@ -334,22 +339,6 @@
       </div>
     </div>
 
-    <!-- AI Feedback -->
-    <div class="settings-section">
-      <h3>AI Coaching Feedback</h3>
-
-      <div class="setting-row api-key-row">
-        <div class="setting-info">
-          <label for="setting-api-key">Anthropic API Key</label>
-          <p>Your API key is stored locally on this device only. Only required when running HomeRow locally (not on a server). Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
-        </div>
-        <div class="api-key-controls">
-          <input type="password" id="setting-api-key" class="api-key-input" placeholder="sk-ant-…" autocomplete="off">
-          <button id="btn-save-api-key" class="btn-secondary">Save</button>
-        </div>
-      </div>
-    </div>
-
     <!-- Data -->
     <div class="settings-section">
       <h3>Progress &amp; Data</h3>
@@ -357,11 +346,11 @@
       <div class="setting-row">
         <div class="setting-info">
           <label>Export Progress</label>
-          <p>Save all your progress, stats, and preferences as a JSON file. Suggested location: the backups/ folder in your HomeRow project.</p>
+          <p>Save all your progress, stats, and preferences as a JSON file.</p>
         </div>
         <div class="export-import-row">
-          <button id="btn-export" class="btn-secondary">Export</button>
-          <button id="btn-import" class="btn-secondary">Import</button>
+          <button id="btn-export" class="btn-secondary">Save Progress</button>
+          <button id="btn-import" class="btn-secondary">Load Progress</button>
         </div>
       </div>
     </div>

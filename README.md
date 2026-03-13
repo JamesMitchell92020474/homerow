@@ -71,7 +71,7 @@ When you open HomeRow you'll see the welcome screen with a colour-coded home row
 
 Below the keys, the three learning phases are shown as horizontal colour-coded bars — green for Beginner, yellow for Intermediate, red for Advanced — matching the traffic-light finger colours used throughout the app. Clicking the **HomeRow** logo in the top-left returns to this screen from anywhere.
 
-The main button reads **Start Learning** on your first visit and changes to **Continue Learning** once you have completed at least one session.
+The main button reads **Start Learning** on your first visit and changes to **Continue Learning** once you have completed at least one session. The **Load Progress** button on the welcome screen lets you restore a previously saved file without going into Settings.
 
 ---
 
@@ -150,7 +150,7 @@ HomeRow plays a soft click on correct keystrokes and a short buzz on errors. Thi
 
 **To toggle sound on or off:** Click the speaker icon (🔊 / 🔇) in the top-right corner of the toolbar. Your preference is remembered between sessions.
 
-**Note:** Sound requires `keypress.wav` and `error.wav` to be present in `assets/sounds/`. The app works fine without them — sound is optional.
+You can also toggle sound under **Settings → Sound Effects**.
 
 ---
 
@@ -158,38 +158,19 @@ HomeRow plays a soft click on correct keystrokes and a short buzz on errors. Thi
 
 After every session, HomeRow shows a personalised coaching note based on your actual session data: your WPM, accuracy, which keys you missed most, and how you're trending over time.
 
-**You always get feedback** — even without an API key. HomeRow generates template feedback from your stats automatically. Adding an API key upgrades this to a fully personalised AI-written note.
-
-### To enable AI coaching (optional)
-
-**When running locally (file on your computer):**
-1. Go to **Settings**
-2. Enter your Anthropic API key (get one free at [console.anthropic.com](https://console.anthropic.com))
-3. Click **Save**
-
-Your API key is stored only in your browser on this device. It is never shared or uploaded.
-
-**When running on a hosted server:** AI coaching works automatically with no API key needed in your browser — the server handles it securely.
-
-**If the AI is unavailable:** HomeRow falls back to template feedback silently. You'll still see a useful coaching note — just not an AI-generated one.
+AI coaching is handled automatically by the server — no setup required. If it is ever unavailable, HomeRow falls back to template feedback silently. You'll still see a useful coaching note either way.
 
 ---
 
-## Exporting and Importing Progress
+## Saving and Loading Progress
 
-HomeRow saves your progress automatically in your browser. But if you switch browsers, reinstall your OS, or want to use HomeRow on another computer, you'll need to export and import your progress manually.
+HomeRow saves your progress automatically in your browser. But if you switch browsers, reinstall your OS, or want to use HomeRow on another computer, you can save and load your progress manually.
 
-### Export
-1. Go to **Settings**
-2. Click **Export**
-3. A file named `homerow-progress-YYYY-MM-DD.json` will download
-4. Save it somewhere safe (suggested: the `backups/` folder in your HomeRow project)
+### Save Progress
+Click the **Save Progress** button — available in Settings, on the Lessons screen, and on the Session Summary screen after each session. A file named `homerow-lesson{N}-YYYY-MM-DD.json` will download. Keep it somewhere safe.
 
-### Import
-1. Go to **Settings** (or the Welcome screen if starting fresh)
-2. Click **Import**
-3. Select your previously exported `.json` file
-4. Your progress is restored
+### Load Progress
+Click **Load Progress** in Settings, on the Lessons screen, or on the Welcome screen. Select your previously saved `.json` file and your progress will be restored.
 
 ---
 
@@ -219,7 +200,5 @@ homerow/
 ├── css/style.css         ← All styling
 ├── js/                   ← App logic
 ├── assets/sounds/        ← keypress.wav and error.wav
-├── server/               ← PHP proxy for hosted AI feedback
-├── backups/              ← Save your exported progress files here
-└── versions/             ← Milestone snapshots (for developers)
+└── server/               ← PHP proxy for hosted AI feedback
 ```

@@ -178,7 +178,9 @@
       Storage.initFresh();
       showScreen('welcome');
     } else {
-      showScreen('lessons');
+      const restorable = ['welcome', 'lessons', 'history', 'settings'];
+      const last = sessionStorage.getItem('homerow_screen');
+      showScreen(restorable.includes(last) ? last : 'lessons');
     }
   }
 
@@ -200,6 +202,7 @@
     const el = document.getElementById(`screen-${name}`);
     if (el) el.classList.add('active');
     State.currentScreen = name;
+    sessionStorage.setItem('homerow_screen', name);
 
     // Update nav highlights
     document.querySelectorAll('.nav-btn').forEach(b => {
@@ -226,6 +229,12 @@
         document.getElementById('btn-retry'),
         document.getElementById('btn-next-lesson'),
         document.getElementById('btn-lessons-from-summary'),
+        document.getElementById('btn-save-summary'),
+      ]);
+    } else if (name === 'lessons') {
+      KeyNav.setGroup([
+        document.getElementById('btn-save-lessons'),
+        document.getElementById('btn-load-lessons'),
       ]);
     } else {
       KeyNav.clear();
@@ -966,11 +975,10 @@
     const proxyAvailable = isHosted();
     const apiKey = Storage.getApiKey();
 
-    // No API available — show template feedback with upgrade hint
+    // No API available — show template feedback
     if (!proxyAvailable && !apiKey) {
       const template = generateTemplateFeedback(sessionData);
-      feedbackEl.innerHTML = `<p>${escapeHtml(template)}</p>
-        <p class="feedback-upgrade">Add your Anthropic API key in Settings for personalised AI coaching.</p>`;
+      feedbackEl.innerHTML = `<p>${escapeHtml(template)}</p>`;
       return;
     }
 
@@ -1233,9 +1241,6 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     const strictCheck = document.getElementById('setting-strict');
     if (strictCheck) strictCheck.checked = prefs.strictMode === true;
 
-    // API key
-    const apiInput = document.getElementById('setting-api-key');
-    if (apiInput) apiInput.value = prefs.apiKey || '';
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1435,6 +1440,16 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     const lessonsFromSummary = document.getElementById('btn-lessons-from-summary');
     if (lessonsFromSummary) lessonsFromSummary.addEventListener('click', () => showScreen('lessons'));
 
+    const saveSummaryBtn = document.getElementById('btn-save-summary');
+    if (saveSummaryBtn) saveSummaryBtn.addEventListener('click', triggerExport);
+
+    // Lessons screen
+    const saveLessonsBtn = document.getElementById('btn-save-lessons');
+    if (saveLessonsBtn) saveLessonsBtn.addEventListener('click', triggerExport);
+
+    const loadLessonsBtn = document.getElementById('btn-load-lessons');
+    if (loadLessonsBtn) loadLessonsBtn.addEventListener('click', triggerImport);
+
     // Settings
     const themeSettingCheck = document.getElementById('setting-theme');
     if (themeSettingCheck) themeSettingCheck.addEventListener('change', () => {
@@ -1455,15 +1470,6 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
       State.strictMode = strictCheck.checked;
       Storage.savePreference('strictMode', strictCheck.checked);
     });
-
-    const apiInput = document.getElementById('setting-api-key');
-    const saveApiBtn = document.getElementById('btn-save-api-key');
-    if (saveApiBtn && apiInput) {
-      saveApiBtn.addEventListener('click', () => {
-        Storage.saveApiKey(apiInput.value.trim());
-        showToast('API key saved.', 'success');
-      });
-    }
 
     const exportBtn = document.getElementById('btn-export');
     if (exportBtn) exportBtn.addEventListener('click', triggerExport);
