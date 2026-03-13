@@ -105,9 +105,11 @@ HomeRow plays a soft click on correct keystrokes and a short buzz on errors. Thi
 
 ## AI Coaching Feedback
 
-After every session, HomeRow can generate a personalised written coaching note — like having a patient tutor look over your shoulder and tell you exactly what to focus on next.
+After every session, HomeRow shows a personalised coaching note based on your actual session data: your WPM, accuracy, which keys you missed most, and how you're trending over time.
 
-The feedback is based on your actual session data: your WPM, accuracy, which keys you missed most, and how you're trending over time.
+**You always get feedback** — even without an API key. HomeRow generates template feedback from your stats automatically. Adding an API key upgrades this to a fully personalised AI-written note.
+
+### To enable AI coaching (optional)
 
 **When running locally (file on your computer):**
 1. Go to **Settings**
@@ -116,9 +118,9 @@ The feedback is based on your actual session data: your WPM, accuracy, which key
 
 Your API key is stored only in your browser on this device. It is never shared or uploaded.
 
-**When running on a hosted server:** The feedback works automatically with no API key needed in your browser — the server handles it securely.
+**When running on a hosted server:** AI coaching works automatically with no API key needed in your browser — the server handles it securely.
 
-**If you'd rather skip AI feedback:** That's fine. All other features work without it. The summary screen will just show your stats without the coaching note.
+**If the AI is unavailable:** HomeRow falls back to template feedback silently. You'll still see a useful coaching note — just not an AI-generated one.
 
 ---
 

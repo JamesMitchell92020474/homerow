@@ -266,8 +266,17 @@ The API key in `config.php` never reaches the browser at any point.
 
 ### Graceful degradation
 
-If neither an API key nor a working proxy is available, the feedback section shows:
-> "Add your Anthropic API key in Settings to unlock personalised coaching feedback after each session."
+The feedback section always shows something useful. Priority order:
+
+1. **API available** → AI-generated coaching note displayed.
+2. **No API key / no proxy** → `generateTemplateFeedback(sessionData)` is called and its output is displayed, with a small "unlock AI coaching" hint beneath.
+3. **API call fails at runtime** → same template feedback, shown silently with no error message.
+
+`generateTemplateFeedback(sessionData)` in `app.js` builds feedback from session data directly:
+- Accuracy bracket (≥97% / ≥93% / ≥88% / below) → appropriate phrasing
+- WPM bracket (≥50 / ≥30 / ≥15 / below) → pace commentary
+- WPM trend from `computeTrend()` → improving / declining sentence if applicable
+- Top problem key from `Tracker.getSessionProblemKeys(3)` → specific key tip
 
 No errors are thrown and all other features work normally.
 
