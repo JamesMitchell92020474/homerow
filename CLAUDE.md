@@ -18,13 +18,11 @@ homerow/
 │   └── app.js                Main app: screens, typing engine, AI, audio
 ├── assets/
 │   └── sounds/
-│       ├── keypress.wav      Correct keystroke sound (generate with tools/)
-│       └── error.wav         Incorrect keystroke sound (generate with tools/)
+│       ├── keypress.wav      Correct keystroke sound — static WAV file
+│       └── error.wav         Incorrect keystroke sound — static WAV file
 ├── server/
 │   ├── proxy.php             Receives session data, calls Anthropic, returns feedback
 │   └── config.php            Holds ANTHROPIC_API_KEY — never commit this file
-├── tools/
-│   └── sound-generator.html  One-time Web Audio API tool to synthesise WAV files
 ├── backups/                  User-exported progress JSON files (gitignored)
 ├── versions/                 Milestone snapshots before major changes (gitignored)
 ├── README.md                 End-user guide
@@ -191,7 +189,7 @@ assets/sounds/keypress.wav
 assets/sounds/error.wav
 ```
 
-These are **static files** — they must be generated once using `tools/sound-generator.html` and placed manually in `assets/sounds/`. They are not generated at runtime.
+These are **static WAV files** loaded directly from disk. They are not generated at runtime.
 
 ### How audio is loaded
 
@@ -325,5 +323,5 @@ Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Set
 - No cross-device sync — localStorage only. Needs a backend for shared progress.
 - No capital letters introduced in beginner/intermediate lessons. Advanced lessons include some via punctuation context.
 - The history chart uses vanilla Canvas, not a charting library. It handles up to 30 sessions cleanly.
-- Sound files must be generated manually with `tools/sound-generator.html` before audio works.
+- Sound files (`keypress.wav`, `error.wav`) must be present in `assets/sounds/` for audio to work.
 - The AI feedback prompt is designed for English. Multi-language support would need prompt adjustments.

@@ -99,7 +99,7 @@ HomeRow plays a soft click on correct keystrokes and a short buzz on errors. Thi
 
 **To toggle sound on or off:** Click the speaker icon (🔊 / 🔇) in the top-right corner of the toolbar. Your preference is remembered between sessions.
 
-**Note:** Sound requires the two WAV files to be present in `assets/sounds/`. If you don't have them yet, open `tools/sound-generator.html` in your browser, click to generate the files, and place them in `assets/sounds/`. The app works fine without them — sound is optional.
+**Note:** Sound requires `keypress.wav` and `error.wav` to be present in `assets/sounds/`. The app works fine without them — sound is optional.
 
 ---
 
@@ -165,9 +165,8 @@ homerow/
 ├── homerow.html          ← Open this in your browser
 ├── css/style.css         ← All styling
 ├── js/                   ← App logic
-├── assets/sounds/        ← keypress.wav and error.wav (generate with tools/)
+├── assets/sounds/        ← keypress.wav and error.wav
 ├── server/               ← PHP proxy for hosted AI feedback
-├── tools/                ← sound-generator.html (one-time use)
 ├── backups/              ← Save your exported progress files here
 └── versions/             ← Milestone snapshots (for developers)
 ```
