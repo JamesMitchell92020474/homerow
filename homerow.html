@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeRow — Touch Typing Tutor</title>
+  <meta name="description" content="HomeRow: a structured, phase-based touch typing tutor with AI coaching feedback.">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TOOLBAR
+  ════════════════════════════════════════════════════════════ -->
+  <header id="toolbar">
+    <div class="logo">Home<span>Row</span></div>
+
+    <nav id="toolbar-nav">
+      <button class="nav-btn" data-screen="lessons">Lessons</button>
+      <button class="nav-btn" data-screen="history">History</button>
+      <button class="nav-btn" data-screen="settings">Settings</button>
+    </nav>
+
+    <div id="toolbar-right">
+      <button id="sound-toggle" class="on" title="Sound on — click to mute">🔊</button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN: WELCOME
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-welcome" class="screen active">
+    <div class="welcome-logo">Home<span>Row</span></div>
+    <p class="welcome-tagline">
+      A structured touch-typing tutor that takes you from home row to full keyboard fluency — with real coaching after every session.
+    </p>
+
+    <div class="welcome-phases">
+      <div class="phase-card">
+        <div class="phase-name">Beginner · Lessons 1–7</div>
+        <h3>Home Row First</h3>
+        <p>Build accurate finger placement on the home row keys before anything else.</p>
+      </div>
+      <div class="phase-card">
+        <div class="phase-name">Intermediate · Lessons 8–14</div>
+        <h3>Full Keyboard</h3>
+        <p>Introduce every letter row by row, building speed alongside accuracy.</p>
+      </div>
+      <div class="phase-card">
+        <div class="phase-name">Advanced · Lessons 15+</div>
+        <h3>Speed &amp; Fluency</h3>
+        <p>Numbers, symbols, and real-world passages. Push beyond 45 WPM.</p>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+      <button id="btn-start" class="btn-primary">Start Learning →</button>
+      <button id="btn-import-welcome" class="btn-secondary">Import Progress</button>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN: LESSON SELECT
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-lessons" class="screen">
+    <h2>Choose a Lesson</h2>
+    <p class="subtitle">Complete each lesson to unlock the next. Requires 90% accuracy and meeting the WPM target.</p>
+    <div id="lessons-grid-root"></div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN: SESSION (TYPING)
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-session" class="screen">
+
+    <!-- Session header -->
+    <div class="session-header">
+      <div class="session-info">
+        <h2 id="session-lesson-title">Lesson 1: Home Row</h2>
+        <span id="session-phase-badge" class="phase-badge beginner">beginner</span>
+        <span id="session-length" class="text-dim text-sm" style="margin-left: 0.5rem;">~18 min session</span>
+      </div>
+      <div class="session-stats">
+        <div class="stat-pill">
+          <div class="stat-val" id="live-wpm">0</div>
+          <div class="stat-lbl">WPM</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val" id="live-accuracy">100%</div>
+          <div class="stat-lbl">Accuracy</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val" id="session-time">0:00</div>
+          <div class="stat-lbl">Time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exercise info and progress -->
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+      <span class="exercise-label" id="exercise-label">Warmup</span>
+      <span class="text-dim text-xs" id="exercise-progress-label">Exercise 1 of 4</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+
+    <!-- Typing area -->
+    <div class="typing-area">
+      <div id="typing-text" tabindex="0" aria-label="Typing exercise text" role="textbox" aria-readonly="true"></div>
+    </div>
+
+    <!-- Keyboard diagram -->
+    <div class="keyboard-wrap">
+      <div class="keyboard-legend">
+        <div class="legend-item"><div class="legend-dot pinky"></div>Pinky</div>
+        <div class="legend-item"><div class="legend-dot ring"></div>Ring</div>
+        <div class="legend-item"><div class="legend-dot middle"></div>Middle</div>
+        <div class="legend-item"><div class="legend-dot index"></div>Index</div>
+        <div class="legend-item"><div class="legend-dot thumb"></div>Thumb</div>
+      </div>
+      <div id="keyboard-diagram" class="keyboard-diagram"></div>
+    </div>
+
+    <!-- Footer hints -->
+    <div class="session-footer">
+      <span class="hint">Just start typing — no need to click the text box.</span>
+      <button class="btn-secondary text-sm" id="btn-quit-session"
+              onclick="if(confirm('End this session?')) { location.reload(); }">Quit Session</button>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN: SUMMARY
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-summary" class="screen">
+
+    <div class="summary-header">
+      <h2>Session Complete 🎉</h2>
+      <p>Here's how you did.</p>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="summary-stats">
+      <div class="summary-stat">
+        <div class="val accent" id="summary-wpm">—</div>
+        <div class="lbl">WPM</div>
+      </div>
+      <div class="summary-stat">
+        <div class="val good" id="summary-accuracy">—</div>
+        <div class="lbl">Accuracy</div>
+      </div>
+      <div class="summary-stat">
+        <div class="val" id="summary-duration">—</div>
+        <div class="lbl">Duration</div>
+      </div>
+      <div class="summary-stat">
+        <div class="val" id="summary-lesson" style="font-size: 1.4rem;">—</div>
+        <div class="lbl">Lesson</div>
+      </div>
+    </div>
+
+    <!-- Unlock banner (shown if lesson unlocked) -->
+    <div id="unlock-banner" class="unlock-banner hidden">
+      <span class="icon">🔓</span>
+      <div>
+        <strong>Lesson unlocked!</strong>
+        <span id="unlock-lesson-title" style="color: var(--text-dim);">Next lesson title</span>
+      </div>
+    </div>
+
+    <!-- Problem keys -->
+    <div class="problem-keys-section">
+      <h3>Problem Keys This Session</h3>
+      <div id="problem-key-list" class="problem-key-list"></div>
+    </div>
+
+    <!-- AI Feedback -->
+    <div class="ai-feedback">
+      <h3>Coach Feedback</h3>
+      <div id="ai-feedback-text">
+        <span class="unavailable">Add your Anthropic API key in Settings to unlock personalised coaching feedback after each session.</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="summary-actions">
+      <button id="btn-retry" class="btn-secondary">Try Again</button>
+      <button id="btn-next-lesson" class="btn-primary hidden">Next Lesson →</button>
+      <button id="btn-lessons-from-summary" class="btn-secondary">All Lessons</button>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN: HISTORY
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-history" class="screen">
+
+    <h2>Your Progress</h2>
+    <p class="subtitle">WPM and accuracy over your last 30 sessions.</p>
+
+    <div id="history-empty" class="no-history hidden">
+      <p>No sessions yet. Complete your first lesson to see your progress here.</p>
+    </div>
+
+    <div id="history-content" class="hidden">
+      <div class="chart-wrap">
+        <h3>Performance Over Time</h3>
+        <canvas id="history-chart"></canvas>
+        <div class="chart-legend">
+          <div class="chart-legend-item">
+            <div class="legend-line" style="background: #5b8cf7;"></div>
+            WPM
+          </div>
+          <div class="chart-legend-item">
+            <div class="legend-line" style="background: #4cbb8f; border-top: 2px dashed #4cbb8f; background: none;"></div>
+            Accuracy %
+          </div>
+        </div>
+      </div>
+
+      <div class="history-table-wrap">
+        <h3>Recent Sessions</h3>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Lesson</th>
+              <th>Phase</th>
+              <th>WPM</th>
+              <th>Accuracy</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCREEN: SETTINGS
+  ════════════════════════════════════════════════════════════ -->
+  <main id="screen-settings" class="screen">
+
+    <h2>Settings</h2>
+    <p class="subtitle">Preferences are saved automatically to your browser.</p>
+
+    <!-- Sound & Typing -->
+    <div class="settings-section">
+      <h3>Typing</h3>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <label for="setting-sound">Sound Effects</label>
+          <p>Play audio feedback on correct and incorrect keystrokes. Uses keypress.wav and error.wav from assets/sounds/.</p>
+        </div>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="setting-sound" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <label for="setting-strict">Strict Mode</label>
+          <p>Strict Mode requires you to fix every mistake before moving on. This slows you down at first but builds cleaner muscle memory and better accuracy habits long-term. Recommended once you're comfortable with basic key positions.</p>
+        </div>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="setting-strict">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Feedback -->
+    <div class="settings-section">
+      <h3>AI Coaching Feedback</h3>
+
+      <div class="setting-row api-key-row">
+        <div class="setting-info">
+          <label for="setting-api-key">Anthropic API Key</label>
+          <p>Your API key is stored locally on this device only. Only required when running HomeRow locally (not on a server). Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
+        </div>
+        <div class="api-key-controls">
+          <input type="password" id="setting-api-key" class="api-key-input" placeholder="sk-ant-…" autocomplete="off">
+          <button id="btn-save-api-key" class="btn-secondary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data -->
+    <div class="settings-section">
+      <h3>Progress &amp; Data</h3>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <label>Export Progress</label>
+          <p>Save all your progress, stats, and preferences as a JSON file. Suggested location: the backups/ folder in your HomeRow project.</p>
+        </div>
+        <div class="export-import-row">
+          <button id="btn-export" class="btn-secondary">Export</button>
+          <button id="btn-import" class="btn-secondary">Import</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="settings-section danger-zone">
+      <h3>Danger Zone</h3>
+      <div class="setting-row">
+        <div class="setting-info">
+          <label>Reset All Progress</label>
+          <p>Permanently delete all lessons, stats, and saved data. This cannot be undone.</p>
+        </div>
+        <button id="btn-reset" class="btn-danger">Reset Everything</button>
+      </div>
+    </div>
+
+  </main>
+
+</div><!-- #app -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL: Confirm Reset
+════════════════════════════════════════════════════════════ -->
+<div id="modal-reset" class="modal-overlay">
+  <div class="modal">
+    <h3>Reset All Progress?</h3>
+    <p>This will permanently delete all your lessons, session history, problem key data, and preferences. This action cannot be undone. Export your progress first if you want a backup.</p>
+    <div class="modal-actions">
+      <button id="btn-cancel-reset" class="btn-secondary">Cancel</button>
+      <button id="btn-confirm-reset" class="btn-danger">Yes, Reset Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- ─── Scripts ──────────────────────────────────────────────────────────── -->
+<!-- Load order matters: storage → tracker → lessons → app -->
+<script src="./js/storage.js"></script>
+<script src="./js/tracker.js"></script>
+<script src="./js/lessons.js"></script>
+<script src="./js/app.js"></script>
+
+</body>
+</html>

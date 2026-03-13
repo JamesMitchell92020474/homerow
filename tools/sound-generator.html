@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HomeRow — Sound Generator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #4fc3f7; }
+    p { color: #9e9e9e; margin-bottom: 2rem; text-align: center; max-width: 480px; }
+    .card {
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 540px;
+      width: 100%;
+    }
+    .sound-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #2a2a2a;
+    }
+    .sound-row:last-of-type { border-bottom: none; margin-bottom: 0; }
+    .sound-info { flex: 1; }
+    .sound-info h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+    .sound-info p { font-size: 0.85rem; color: #9e9e9e; margin: 0; }
+    button {
+      background: #1565c0;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    button:hover { background: #1976d2; }
+    button.success { background: #2e7d32; }
+    .generate-all {
+      background: #4fc3f7;
+      color: #121212;
+      font-weight: 600;
+      width: 100%;
+      padding: 0.85rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+    .generate-all:hover { background: #81d4fa; }
+    .instructions {
+      background: #1a2a1a;
+      border: 1px solid #2e7d32;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-top: 2rem;
+      font-size: 0.875rem;
+      color: #a5d6a7;
+      line-height: 1.6;
+    }
+    .instructions strong { color: #c8e6c9; }
+    .status {
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .status.show { display: block; }
+    .status.ok { background: #1b5e20; color: #a5d6a7; }
+  </style>
+</head>
+<body>
+  <h1>HomeRow — Sound Generator</h1>
+  <p>This one-time utility generates the WAV audio files needed by the HomeRow typing tutor. Run it once, download both files, and place them in <code>assets/sounds/</code>.</p>
+
+  <div class="card">
+    <div id="status" class="status"></div>
+
+    <button class="generate-all" onclick="generateAll()">⬇ Generate &amp; Download Both Sound Files</button>
+
+    <div class="sound-row">
+      <div class="sound-info">
+        <h3>keypress.wav</h3>
+        <p>Soft click played on each correct keystroke</p>
+      </div>
+      <button onclick="previewKeypress()">▶ Preview</button>
+      <button id="btn-keypress" onclick="downloadKeypress()">⬇ Download</button>
+    </div>
+
+    <div class="sound-row">
+      <div class="sound-info">
+        <h3>error.wav</h3>
+        <p>Short buzz played on each incorrect keystroke</p>
+      </div>
+      <button onclick="previewError()">▶ Preview</button>
+      <button id="btn-error" onclick="downloadError()">⬇ Download</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <strong>How to use this tool:</strong><br>
+    1. Click "Generate &amp; Download Both Sound Files" above.<br>
+    2. Save <strong>keypress.wav</strong> and <strong>error.wav</strong> into the <strong>assets/sounds/</strong> folder of your HomeRow project.<br>
+    3. That's it — you won't need this tool again unless you want different sounds.<br><br>
+    <strong>Note:</strong> Your browser may download both files simultaneously or prompt you to allow multiple downloads.
+  </div>
+
+  <script>
+    const SAMPLE_RATE = 44100;
+
+    // ─── WAV encoding ─────────────────────────────────────────────────────────
+
+    function encodeWav(buffer) {
+      const channelData = buffer.getChannelData(0);
+      const numSamples = channelData.length;
+      const arrayBuffer = new ArrayBuffer(44 + numSamples * 2);
+      const view = new DataView(arrayBuffer);
+
+      function writeStr(offset, str) {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+      }
+
+      writeStr(0, 'RIFF');
+      view.setUint32(4, 36 + numSamples * 2, true);
+      writeStr(8, 'WAVE');
+      writeStr(12, 'fmt ');
+      view.setUint32(16, 16, true);          // chunk size
+      view.setUint16(20, 1, true);           // PCM format
+      view.setUint16(22, 1, true);           // mono
+      view.setUint32(24, SAMPLE_RATE, true); // sample rate
+      view.setUint32(28, SAMPLE_RATE * 2, true); // byte rate
+      view.setUint16(32, 2, true);           // block align
+      view.setUint16(34, 16, true);          // bits per sample
+      writeStr(36, 'data');
+      view.setUint32(40, numSamples * 2, true);
+
+      for (let i = 0; i < numSamples; i++) {
+        const s = Math.max(-1, Math.min(1, channelData[i]));
+        view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+
+      return arrayBuffer;
+    }
+
+    function triggerDownload(arrayBuffer, filename) {
+      const blob = new Blob([arrayBuffer], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // ─── Keypress sound synthesis ──────────────────────────────────────────────
+    // A soft, short click: two sine waves (fundamental + harmonic) with fast decay
+
+    async function renderKeypress() {
+      const duration = 0.07; // 70ms
+      const ctx = new OfflineAudioContext(1, Math.ceil(SAMPLE_RATE * duration), SAMPLE_RATE);
+
+      // Primary tone
+      const osc1 = ctx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(900, 0);
+      osc1.frequency.exponentialRampToValueAtTime(600, duration);
+
+      // Harmonic
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(1800, 0);
+      osc2.frequency.exponentialRampToValueAtTime(1200, duration);
+
+      // Noise transient for click character
+      const bufSize = ctx.length;
+      const noiseBuffer = ctx.createBuffer(1, bufSize, SAMPLE_RATE);
+      const noiseData = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) noiseData[i] = (Math.random() * 2 - 1) * 0.3;
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+
+      // Noise envelope (very short)
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(1, 0);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, 0.015);
+
+      // Tone envelope
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(0.0001, 0);
+      gainNode.gain.exponentialRampToValueAtTime(0.4, 0.003);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, duration);
+
+      // Mix
+      const mixer = ctx.createGain();
+      mixer.gain.value = 1;
+
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(mixer);
+      noiseSource.connect(noiseGain);
+      noiseGain.connect(mixer);
+      mixer.connect(ctx.destination);
+
+      osc1.start(0); osc1.stop(duration);
+      osc2.start(0); osc2.stop(duration);
+      noiseSource.start(0); noiseSource.stop(duration);
+
+      return ctx.startRendering();
+    }
+
+    // ─── Error sound synthesis ─────────────────────────────────────────────────
+    // A short low buzz: sawtooth wave with rapid tremolo and quick decay
+
+    async function renderError() {
+      const duration = 0.12; // 120ms
+      const ctx = new OfflineAudioContext(1, Math.ceil(SAMPLE_RATE * duration), SAMPLE_RATE);
+
+      // Low buzzy tone
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(180, 0);
+      osc.frequency.exponentialRampToValueAtTime(120, duration);
+
+      // Subtle dissonant harmonic
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'square';
+      osc2.frequency.setValueAtTime(190, 0);
+      osc2.frequency.exponentialRampToValueAtTime(130, duration);
+
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(0.0001, 0);
+      gainNode.gain.exponentialRampToValueAtTime(0.35, 0.005);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, duration);
+
+      const gain2 = ctx.createGain();
+      gain2.gain.value = 0.25;
+
+      osc.connect(gainNode);
+      osc2.connect(gain2);
+      gain2.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc.start(0); osc.stop(duration);
+      osc2.start(0); osc2.stop(duration);
+
+      return ctx.startRendering();
+    }
+
+    // ─── Preview (plays in browser) ────────────────────────────────────────────
+
+    async function playBuffer(renderFn) {
+      const buffer = await renderFn();
+      const ctx = new AudioContext();
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start();
+    }
+
+    function previewKeypress() { playBuffer(renderKeypress); }
+    function previewError()    { playBuffer(renderError); }
+
+    // ─── Download ──────────────────────────────────────────────────────────────
+
+    async function downloadKeypress() {
+      const buffer = await renderKeypress();
+      triggerDownload(encodeWav(buffer), 'keypress.wav');
+      document.getElementById('btn-keypress').textContent = '✓ Downloaded';
+      document.getElementById('btn-keypress').classList.add('success');
+    }
+
+    async function downloadError() {
+      const buffer = await renderError();
+      triggerDownload(encodeWav(buffer), 'error.wav');
+      document.getElementById('btn-error').textContent = '✓ Downloaded';
+      document.getElementById('btn-error').classList.add('success');
+    }
+
+    async function generateAll() {
+      const status = document.getElementById('status');
+      status.textContent = 'Generating sound files…';
+      status.className = 'status show ok';
+      await downloadKeypress();
+      await new Promise(r => setTimeout(r, 300));
+      await downloadError();
+      status.textContent = '✓ Both files generated! Move them to assets/sounds/ in your HomeRow project folder.';
+    }
+  </script>
+</body>
+</html>

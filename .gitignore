@@ -1,0 +1,13 @@
+# Never commit the API key
+server/config.php
+
+# Exported progress backups
+backups/*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
