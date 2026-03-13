@@ -30,6 +30,11 @@
   --finger-index:  #5baa72;
   --finger-thumb:  #5b8cf7;
 
+  /* Phase / session badge tints */
+  --badge-bg-beginner:     #1a3a2a;
+  --badge-bg-intermediate: #2a2a1a;
+  --badge-bg-advanced:     #1a1a3a;
+
   --radius:    10px;
   --radius-sm: 6px;
   --shadow:    0 4px 24px rgba(0,0,0,0.5);
@@ -50,6 +55,11 @@ body.light {
   --text-faint: #aaaabc;
 
   --shadow: 0 4px 24px rgba(0,0,0,0.10);
+
+  /* Phase / session badge tints */
+  --badge-bg-beginner:     #d4ede2;
+  --badge-bg-intermediate: #ede8d4;
+  --badge-bg-advanced:     #d4d4ed;
 
   /* Finger colours — slightly deeper for contrast on light bg */
   --finger-pinky:  #b85566;
@@ -301,7 +311,7 @@ input:focus, select:focus, textarea:focus {
 }
 .lesson-card:hover:not(.locked) {
   border-color: var(--accent);
-  background: #20202e;
+  background: var(--border);
   transform: translateY(-2px);
 }
 .lesson-card.locked {
@@ -364,9 +374,9 @@ input:focus, select:focus, textarea:focus {
   margin-left: 0.5rem;
   vertical-align: middle;
 }
-.phase-badge.beginner     { background: #1a3a2a; color: var(--success); }
-.phase-badge.intermediate { background: #2a2a1a; color: var(--warning); }
-.phase-badge.advanced     { background: #1a1a3a; color: var(--info); }
+.phase-badge.beginner     { background: var(--badge-bg-beginner);     color: var(--success); }
+.phase-badge.intermediate { background: var(--badge-bg-intermediate); color: var(--warning); }
+.phase-badge.advanced     { background: var(--badge-bg-advanced);     color: var(--info); }
 
 .session-stats {
   display: flex;
@@ -807,9 +817,9 @@ input:focus, select:focus, textarea:focus {
   font-weight: 600;
   text-transform: capitalize;
 }
-.badge.beginner     { background: #1a3a2a; color: var(--success); }
-.badge.intermediate { background: #2a2a1a; color: var(--warning); }
-.badge.advanced     { background: #1a1a3a; color: var(--info); }
+.badge.beginner     { background: var(--badge-bg-beginner);     color: var(--success); }
+.badge.intermediate { background: var(--badge-bg-intermediate); color: var(--warning); }
+.badge.advanced     { background: var(--badge-bg-advanced);     color: var(--info); }
 
 .no-history {
   text-align: center;
