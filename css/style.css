@@ -281,30 +281,51 @@ input:focus, select:focus, textarea:focus {
 }
 
 .welcome-phases {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  max-width: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
   width: 100%;
+  max-width: 560px;
 }
 
 .phase-card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1.25rem;
   border-radius: var(--radius);
-  padding: 1.25rem;
+  border: 1px solid transparent;
   text-align: left;
 }
-.phase-card .phase-name {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  margin-bottom: 0.4rem;
+.phase-card--beginner    { background: rgba(91, 170, 114, 0.12); border-color: rgba(91, 170, 114, 0.3); }
+.phase-card--intermediate { background: rgba(201, 184, 64, 0.10); border-color: rgba(201, 184, 64, 0.28); }
+.phase-card--advanced    { background: rgba(192, 105, 122, 0.12); border-color: rgba(192, 105, 122, 0.3); }
+
+.phase-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 5.5rem;
+  flex-shrink: 0;
+  gap: 0.15rem;
 }
-.phase-card h3 { font-size: 1rem; margin-bottom: 0.35rem; }
-.phase-card p  { font-size: 0.82rem; color: var(--text-dim); }
+.phase-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.phase-card--beginner    .phase-tag { color: var(--finger-index); }
+.phase-card--intermediate .phase-tag { color: var(--finger-middle); }
+.phase-card--advanced    .phase-tag { color: var(--finger-pinky); }
+.phase-lessons {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.phase-content h3 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+.phase-content p  { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
 
 .btn-primary {
   background: transparent;
@@ -1271,7 +1292,6 @@ input:focus, select:focus, textarea:focus {
 
 @media (max-width: 680px) {
   .summary-stats { grid-template-columns: repeat(2, 1fr); }
-  .welcome-phases { grid-template-columns: 1fr; }
   .kb-key { width: 28px; height: 28px; font-size: 0.6rem; }
   .kb-spacebar { width: 140px; }
   #typing-text { font-size: 1.1rem; }
