@@ -168,7 +168,18 @@
   //  INIT
   // ═══════════════════════════════════════════════════════════════════════════
 
+  function isMobileDevice() {
+    const touchOnly = navigator.maxTouchPoints > 0 && !window.matchMedia('(pointer: fine)').matches;
+    const narrowScreen = window.innerWidth < 600;
+    return touchOnly || narrowScreen;
+  }
+
   function init() {
+    if (isMobileDevice()) {
+      document.getElementById('mobile-notice').classList.remove('hidden');
+      return;
+    }
+
     loadPreferences();
     buildKeyboard();
     bindGlobalEvents();
@@ -717,15 +728,35 @@
 
   // ─── Live stats display ───────────────────────────────────────────────────────
 
+  function liveColourClass(value, target, thresholds) {
+    // thresholds: [good, close, mid] as fractions of target
+    if (value >= target * thresholds[0]) return 'live-good';
+    if (value >= target * thresholds[1]) return 'live-close';
+    if (value >= target * thresholds[2]) return 'live-mid';
+    return 'live-low';
+  }
+
   function updateStats() {
     const wpm = getLiveWpm();
     const accuracy = getLiveAccuracy();
+    const lesson = State.session ? Lessons.get(State.session.lessonId) : null;
 
     const wpmEl = document.getElementById('live-wpm');
-    if (wpmEl) wpmEl.textContent = wpm;
+    if (wpmEl) {
+      wpmEl.textContent = wpm;
+      if (lesson && wpm > 0) {
+        wpmEl.className = 'stat-val ' + liveColourClass(wpm, lesson.targetWpm, [1, 0.8, 0.6]);
+      }
+    }
 
     const accEl = document.getElementById('live-accuracy');
-    if (accEl) accEl.textContent = accuracy + '%';
+    if (accEl) {
+      accEl.textContent = accuracy + '%';
+      if (lesson) {
+        const target = lesson.targetAccuracy || 90;
+        accEl.className = 'stat-val ' + liveColourClass(accuracy, target, [1, 0.97, 0.93]);
+      }
+    }
 
     const timeEl = document.getElementById('session-time');
     if (timeEl) timeEl.textContent = formatTime(State.sessionElapsed);
@@ -820,6 +851,9 @@
 
   function renderSummary(sessionData, unlocked, nextLesson) {
     const { wpm, accuracy, duration, phase, lessonId } = sessionData;
+    const lesson = Lessons.get(lessonId);
+    const targetWpm = lesson ? lesson.targetWpm : null;
+    const targetAccuracy = lesson ? (lesson.targetAccuracy || 90) : 90;
 
     // Stats
     document.getElementById('summary-wpm').textContent = wpm;
@@ -827,6 +861,12 @@
     document.getElementById('summary-duration').textContent = formatTime(duration);
     const lessonNumEl = document.getElementById('summary-lesson');
     if (lessonNumEl) lessonNumEl.textContent = `#${lessonId}`;
+
+    // Target sub-labels
+    const wpmTargetEl = document.getElementById('summary-wpm-target');
+    if (wpmTargetEl) wpmTargetEl.textContent = targetWpm ? `Target: ${targetWpm}` : '';
+    const accTargetEl = document.getElementById('summary-acc-target');
+    if (accTargetEl) accTargetEl.textContent = `Target: ${targetAccuracy}%`;
 
     // Colour the WPM
     const wpmEl = document.getElementById('summary-wpm');
@@ -907,6 +947,24 @@
         nextBtn.onclick = () => startSession(nextLesson.id);
       } else {
         nextBtn.classList.add('hidden');
+      }
+    }
+
+    // Strict Mode toggle — sync with current preference
+    const summaryStrictCheck = document.getElementById('summary-strict-check');
+    if (summaryStrictCheck) {
+      summaryStrictCheck.checked = State.strictMode;
+    }
+
+    // Strict Mode prompt — show once after first-ever lesson pass
+    const strictPrompt = document.getElementById('strict-mode-prompt');
+    if (strictPrompt) {
+      const prefs = Storage.getAll().preferences;
+      const completedCount = Object.values(Storage.getAll().lessonProgress || {}).filter(l => l.completed).length;
+      if (unlocked && completedCount === 1 && !prefs.seenStrictPrompt && !State.strictMode) {
+        strictPrompt.classList.remove('hidden');
+      } else {
+        strictPrompt.classList.add('hidden');
       }
     }
 
@@ -1081,6 +1139,73 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
 
     renderChart(sessions);
     renderHistoryTable(sessions);
+
+    if (sessions.length >= 3) {
+      fetchHistoryAiFeedback(sessions);
+    } else {
+      document.getElementById('history-ai-wrap').classList.add('hidden');
+    }
+  }
+
+  async function fetchHistoryAiFeedback(sessions) {
+    const wrap = document.getElementById('history-ai-wrap');
+    const el   = document.getElementById('history-ai-text');
+    if (!el) return;
+    wrap.classList.remove('hidden');
+    el.innerHTML = `<span class="loading">Generating your progress summary…</span>`;
+
+    if (!isHosted()) {
+      el.innerHTML = `<span class="unavailable">Progress summaries are available when HomeRow is hosted online.</span>`;
+      return;
+    }
+
+    const data = Storage.getAll();
+    const allSessions = sessions.slice(-30);
+    const first  = allSessions[0];
+    const recent = allSessions.slice(-5);
+    const avgWpm = n => Math.round(n.reduce((a, s) => a + s.wpm, 0) / n.length);
+    const avgAcc = n => Math.round(n.reduce((a, s) => a + s.accuracy, 0) / n.length);
+
+    const lessonsCompleted = Object.values(data.lessonProgress || {}).filter(l => l.completed).length;
+    const currentLesson    = data.currentLesson || 1;
+
+    const topKeys = Object.entries(data.problemKeys || {})
+      .map(([k, v]) => ({ key: k, rate: v.total > 0 ? v.misses / v.total : 0, total: v.total }))
+      .filter(k => k.total >= 10 && k.rate > 0.15)
+      .sort((a, b) => b.rate - a.rate)
+      .slice(0, 3);
+    const problemStr = topKeys.length > 0
+      ? topKeys.map(k => `${k.key === ' ' ? 'Space' : k.key.toUpperCase()} (${Math.round(k.rate * 100)}% error rate)`).join(', ')
+      : 'none';
+
+    const wpmFirst  = avgWpm(allSessions.slice(0, 3));
+    const wpmRecent = avgWpm(recent);
+    const accRecent = avgAcc(recent);
+
+    const prompt = `You are a friendly, encouraging touch-typing coach. Write a short (4–5 sentence) overall progress summary for a student based on their practice history.
+
+Student data:
+- Total sessions: ${allSessions.length}
+- Lessons completed: ${lessonsCompleted}, currently on lesson ${currentLesson}
+- WPM when they started: ~${wpmFirst} WPM
+- WPM recently (last 5 sessions): ~${wpmRecent} WPM
+- Recent average accuracy: ${accRecent}%
+- Persistent problem keys: ${problemStr}
+
+Comment on their overall trajectory, acknowledge what they've built, and give one specific focus for their next sessions. Be warm and concrete. Under 100 words.`;
+
+    try {
+      const resp = await fetch('./server/proxy.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      const result = await resp.json();
+      if (result.error) throw new Error(result.error);
+      el.innerHTML = `<p>${escapeHtml(result.feedback)}</p>`;
+    } catch {
+      el.innerHTML = `<span class="unavailable">Progress summary unavailable right now.</span>`;
+    }
   }
 
   function renderChart(sessions) {
@@ -1443,12 +1568,50 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     const saveSummaryBtn = document.getElementById('btn-save-summary');
     if (saveSummaryBtn) saveSummaryBtn.addEventListener('click', triggerExport);
 
+    // Summary strict toggle
+    const summaryStrictCheck = document.getElementById('summary-strict-check');
+    if (summaryStrictCheck) {
+      summaryStrictCheck.addEventListener('change', () => {
+        State.strictMode = summaryStrictCheck.checked;
+        Storage.savePreference('strictMode', summaryStrictCheck.checked);
+        const settingsCheck = document.getElementById('setting-strict');
+        if (settingsCheck) settingsCheck.checked = summaryStrictCheck.checked;
+      });
+    }
+
+    // Strict Mode prompt buttons
+    const strictYesBtn = document.getElementById('btn-strict-yes');
+    if (strictYesBtn) {
+      strictYesBtn.addEventListener('click', () => {
+        State.strictMode = true;
+        Storage.savePreference('strictMode', true);
+        Storage.savePreference('seenStrictPrompt', true);
+        const settingsCheck = document.getElementById('setting-strict');
+        if (settingsCheck) settingsCheck.checked = true;
+        if (summaryStrictCheck) summaryStrictCheck.checked = true;
+        document.getElementById('strict-mode-prompt').classList.add('hidden');
+      });
+    }
+    const strictNoBtn = document.getElementById('btn-strict-no');
+    if (strictNoBtn) {
+      strictNoBtn.addEventListener('click', () => {
+        Storage.savePreference('seenStrictPrompt', true);
+        document.getElementById('strict-mode-prompt').classList.add('hidden');
+      });
+    }
+
     // Lessons screen
     const saveLessonsBtn = document.getElementById('btn-save-lessons');
     if (saveLessonsBtn) saveLessonsBtn.addEventListener('click', triggerExport);
 
     const loadLessonsBtn = document.getElementById('btn-load-lessons');
     if (loadLessonsBtn) loadLessonsBtn.addEventListener('click', triggerImport);
+
+    const historyRefreshBtn = document.getElementById('btn-history-ai-refresh');
+    if (historyRefreshBtn) historyRefreshBtn.addEventListener('click', () => {
+      const sessions = Storage.getSessions();
+      if (sessions.length >= 3) fetchHistoryAiFeedback(sessions);
+    });
 
     // Settings
     const themeSettingCheck = document.getElementById('setting-theme');

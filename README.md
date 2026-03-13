@@ -20,6 +20,8 @@ HomeRow teaches you to type the right way: home row first, then one key at a tim
 
 **Tip:** Bookmark it in your browser so you can come back to it easily.
 
+**Note:** HomeRow requires a physical keyboard. If you open it on a phone or tablet, you'll see a notice explaining this rather than the app loading.
+
 ---
 
 ## The Three Learning Phases
@@ -60,6 +62,8 @@ Each session has three parts:
 - **Green** = correct keystroke
 - **Red** = incorrect keystroke
 - The **animated keyboard** at the bottom always shows you which finger to use for the next key
+
+The **WPM and Accuracy** counters in the session header are colour-coded in real time to show how you're tracking against the lesson targets — green means you're passing, yellow is close, orange is mid-range, and red means you need to pick up the pace or tighten your accuracy.
 
 If your accuracy drops below 80% on any drill, HomeRow will repeat that drill before moving on. This is normal and intentional.
 
@@ -115,20 +119,20 @@ Keep your eyes on the screen, not the keyboard. That's the whole point of touch 
 
 ## Session Summary
 
-After every session, HomeRow shows your WPM, accuracy, duration, and lesson number. If you met both the accuracy and WPM targets, a **Lesson Unlocked** banner confirms you can move on.
+After every session, HomeRow shows your WPM, accuracy, duration, and lesson number. The WPM and Accuracy boxes each show the lesson target beneath them so you can see at a glance how close you were. If you met both targets, a **Lesson Unlocked** banner confirms you can move on.
 
 If you didn't meet the targets, a notice explains exactly what fell short — for example:
 
 - *Accuracy: 87% — need 90%*
 - *Speed: 18 WPM — need 25 WPM*
 
-The targets for each lesson are shown on the lesson card before you start. Keep practising the same lesson until both are met — the next lesson unlocks automatically.
+The summary screen also has a **Strict Mode** toggle so you can switch it on or off without going into Settings.
 
 ---
 
 ## Strict Mode
 
-**Strict Mode is off by default.** You can turn it on in Settings.
+**Strict Mode is off by default.** You can turn it on in Settings or directly on the Session Summary screen.
 
 In normal mode, if you type the wrong key, HomeRow marks it red and moves on. You can keep typing.
 
@@ -176,7 +180,7 @@ Click **Load Progress** in Settings, on the Lessons screen, or on the Welcome sc
 
 ## Session History
 
-The **History** screen shows a chart of your WPM and accuracy over your last 30 sessions, with phase milestones marked. Below the chart is a table of your recent sessions.
+The **History** screen shows an AI-generated progress summary at the top (available after 3 or more sessions), followed by a chart of your WPM and accuracy over your last 30 sessions, and a table of recent sessions below that. The summary can be refreshed with the ↺ button.
 
 This is a good place to check in weekly and see your overall trend. Don't get discouraged by dips — they're normal, especially after introducing new keys.
 

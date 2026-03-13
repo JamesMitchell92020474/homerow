@@ -9,6 +9,14 @@
 </head>
 <body>
 
+<div id="mobile-notice" class="mobile-notice hidden">
+  <div class="mobile-notice-inner">
+    <div class="mobile-notice-icon">⌨️</div>
+    <h2>HomeRow needs a keyboard</h2>
+    <p>HomeRow is a touch typing tutor designed for use with a physical keyboard. For the best experience, open it on a desktop or laptop.</p>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- ═══════════════════════════════════════════════════════════
@@ -180,17 +188,19 @@
       <div class="summary-stat">
         <div class="val accent" id="summary-wpm">—</div>
         <div class="lbl">WPM</div>
+        <div class="target-lbl" id="summary-wpm-target"></div>
       </div>
       <div class="summary-stat">
         <div class="val good" id="summary-accuracy">—</div>
         <div class="lbl">Accuracy</div>
+        <div class="target-lbl" id="summary-acc-target"></div>
       </div>
       <div class="summary-stat">
         <div class="val" id="summary-duration">—</div>
         <div class="lbl">Duration</div>
       </div>
       <div class="summary-stat">
-        <div class="val" id="summary-lesson" style="font-size: 1.4rem;">—</div>
+        <div class="val" id="summary-lesson">—</div>
         <div class="lbl">Lesson</div>
       </div>
     </div>
@@ -210,6 +220,18 @@
       <ul id="not-passed-reasons" class="not-passed-reasons"></ul>
     </div>
 
+    <!-- Strict Mode prompt (shown once after first lesson pass) -->
+    <div id="strict-mode-prompt" class="strict-prompt hidden">
+      <div class="strict-prompt-body">
+        <strong>Ready for a challenge?</strong>
+        <p>Strict Mode forces you to fix every mistake before moving on — the fastest way to build clean habits.</p>
+      </div>
+      <div class="strict-prompt-actions">
+        <button id="btn-strict-yes" class="btn-primary">Turn on Strict Mode</button>
+        <button id="btn-strict-no" class="btn-secondary">Not yet</button>
+      </div>
+    </div>
+
     <!-- Problem keys -->
     <div class="problem-keys-section">
       <h3>Problem Keys This Session</h3>
@@ -222,6 +244,16 @@
       <div id="ai-feedback-text">
         <span class="unavailable">Coaching feedback will appear here after your session.</span>
       </div>
+    </div>
+
+    <!-- Strict Mode toggle -->
+    <div class="summary-strict-row">
+      <span class="summary-strict-label">Strict Mode</span>
+      <span class="summary-strict-desc">Fix every mistake before moving on</span>
+      <label class="toggle">
+        <input type="checkbox" id="summary-strict-check">
+        <span class="toggle-slider"></span>
+      </label>
     </div>
 
     <!-- Actions -->
@@ -247,6 +279,11 @@
     </div>
 
     <div id="history-content" class="hidden">
+      <div class="ai-feedback" id="history-ai-wrap">
+        <h3>Progress Summary <button id="btn-history-ai-refresh" class="btn-refresh" title="Refresh summary">↺</button></h3>
+        <div id="history-ai-text"><span class="loading">Generating your progress summary…</span></div>
+      </div>
+
       <div class="chart-wrap">
         <h3>Performance Over Time</h3>
         <canvas id="history-chart"></canvas>

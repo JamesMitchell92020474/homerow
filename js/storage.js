@@ -24,6 +24,7 @@ window.Storage = (() => {
         apiKey: '',
         theme: 'dark',
         seenHandTutorial: false,
+        seenStrictPrompt: false,
       },
     };
   }

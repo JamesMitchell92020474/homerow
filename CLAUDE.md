@@ -162,7 +162,8 @@ All data is stored under a single key: `homerow_data`.
     soundEnabled: true,                // Sound on/off — persists across sessions
     strictMode: false,                 // Strict Mode on/off
     theme: "dark",                     // "dark" | "light"
-    seenHandTutorial: false            // True after hand placement tutorial is dismissed once
+    seenHandTutorial: false,           // True after hand placement tutorial is dismissed once
+    seenStrictPrompt: false            // True after one-time Strict Mode prompt is dismissed
   }
 }
 ```
@@ -393,17 +394,28 @@ document.addEventListener('keydown', onKey);
 `renderSummary(sessionData, unlocked, nextLesson)` in `app.js` is called before `showScreen('summary')`. It:
 
 1. Populates stats (WPM, accuracy, duration, lesson number) and colours them by bracket.
-2. Updates the header copy dynamically: `"Session Complete 🎉"` / `"Great work — lesson passed!"` if `unlocked`; `"Session Complete"` / `"Here's how you did."` if not.
-3. Shows the **unlock banner** (`#unlock-banner`) if `unlocked && nextLesson`.
-4. Shows the **not-passed notice** (`#not-passed-notice`) if `!unlocked` — lists exactly which thresholds were missed:
-   - Accuracy: `${accuracy}% — need ${targetAccuracy}%`
-   - Speed: `${wpm} WPM — need ${targetWpm} WPM`
-   - Only the failing items are listed. `unlocked === false` means the lesson was not already completed AND this session missed at least one threshold.
-5. Renders problem key chips.
-6. Shows/hides the **Next Lesson** button based on whether the next lesson is now unlocked.
-7. Calls `fetchAiFeedback()`.
+2. Populates `.target-lbl` sub-labels under WPM (`#summary-wpm-target`) and Accuracy (`#summary-acc-target`) with the lesson targets.
+3. Updates the header copy dynamically: `"Session Complete 🎉"` / `"Great work — lesson passed!"` if `unlocked`; `"Session Complete"` / `"Here's how you did."` if not.
+4. Shows the **unlock banner** (`#unlock-banner`) if `unlocked && nextLesson`.
+5. Shows the **not-passed notice** (`#not-passed-notice`) if `!unlocked` — lists exactly which thresholds were missed.
+6. Shows the **Strict Mode prompt** (`#strict-mode-prompt`) once — only when `unlocked && completedCount === 1 && !seenStrictPrompt && !State.strictMode`. Dismissed via "Turn on Strict Mode" or "Not yet"; both set `seenStrictPrompt: true`.
+7. Syncs the **Strict Mode toggle** (`#summary-strict-check`) with `State.strictMode`. The toggle updates Settings and `State` in both directions.
+8. Renders problem key chips.
+9. Shows/hides the **Next Lesson** button based on whether the next lesson is now unlocked.
+10. Calls `fetchAiFeedback()`.
 
 KeyNav for the summary is set in `showScreen('summary')`, not in `renderSummary()`.
+
+### Live session colour coding
+
+`updateStats()` calls `liveColourClass(value, target, thresholds)` to assign one of four CSS classes to `#live-wpm` and `#live-accuracy`:
+
+- `live-good` → `--finger-index` (green) — at or above target
+- `live-close` → `--finger-middle` (yellow) — within 20% below target (WPM) / within 3% below target (accuracy)
+- `live-mid` → `--finger-ring` (orange) — within 40% below target (WPM) / within 7% below (accuracy)
+- `live-low` → `--finger-pinky` (red) — below that
+
+WPM colour only activates once `wpm > 0` to avoid red flash at session start.
 
 ---
 
@@ -462,6 +474,10 @@ The feedback section always shows something useful. Priority order:
 
 No errors are thrown and all other features work normally.
 
+### History screen AI summary
+
+`fetchHistoryAiFeedback(sessions)` in `app.js` is called from `renderHistory()` when `sessions.length >= 3`. It posts to the same proxy with a prompt summarising the student's overall arc: WPM at start vs recently, average accuracy, lessons completed, and persistent problem keys. The result appears in `#history-ai-text` inside `#history-ai-wrap` (`.ai-feedback` block) above the chart. A ↺ refresh button (`#btn-history-ai-refresh`) re-calls the function. Only available when hosted; shows a short unavailable message on `file://`.
+
 ---
 
 ## Hosting on cPanel (e.g. myhost.nz)
@@ -498,6 +514,12 @@ Append to `LESSON_DATA` in `js/lessons.js`. Follow the existing schema.
 
 ### New settings
 Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Settings screen in `homerow.html`, and wire up the change handler in `bindGlobalEvents()` in `app.js`.
+
+### Mobile detection
+
+`isMobileDevice()` in `app.js` runs at the top of `init()`. If it returns `true`, the `#mobile-notice` overlay is shown and the app does not load. Detection uses two signals — either triggers the notice:
+- `navigator.maxTouchPoints > 0 && !window.matchMedia('(pointer: fine)').matches` — touch-only device with no fine pointer
+- `window.innerWidth < 600` — screen narrower than 600 px
 
 ### Screen persistence on refresh
 
