@@ -69,7 +69,7 @@ window.Lessons = (() => {
       description: 'Place your left fingers on the home row: A (pinky), S (ring), D (middle), F (index). Keep fingers lightly resting on these keys at all times.',
       newKeysNote: 'Left Hand Home Row — your left fingers rest here between every keystroke.',
       phase: 'beginner',
-      newKeys: ['a', 's', 'd', 'f'],
+      newKeys: ['a', 's', 'd', 'f', ' '],
       allKeys: ['a', 's', 'd', 'f', ' '],
       targetWpm: 15,
       targetAccuracy: 90,

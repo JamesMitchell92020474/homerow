@@ -110,6 +110,8 @@
   // ═══════════════════════════════════════════════════════════════════════════
 
   const KEY_INFO = {
+    // Spacebar
+    ' ': { finger: 'Either Thumb',  fingerClass: 'finger-thumb',           desc: 'Press with whichever thumb is closest — usually your right thumb.' },
     // Home row
     'a': { finger: 'Left Pinky',   fingerClass: 'finger-left-pinky',   desc: 'Home row anchor — your left pinky rests here at all times.' },
     's': { finger: 'Left Ring',    fingerClass: 'finger-left-ring',    desc: 'Home row — your left ring finger rests here.' },
@@ -211,9 +213,19 @@
 
     // Keyboard nav for multi-button screens
     if (name === 'welcome') {
+      const data = Storage.getAll();
+      const hasProgress = data.sessions && data.sessions.length > 0;
+      document.getElementById('btn-start').textContent = hasProgress ? 'Continue Learning →' : 'Start Learning →';
       KeyNav.setGroup([
         document.getElementById('btn-start'),
         document.getElementById('btn-import-welcome'),
+      ]);
+    } else if (name === 'summary') {
+      // renderSummary runs before showScreen, so btn-next-lesson visibility is already set
+      KeyNav.setGroup([
+        document.getElementById('btn-retry'),
+        document.getElementById('btn-next-lesson'),
+        document.getElementById('btn-lessons-from-summary'),
       ]);
     } else {
       KeyNav.clear();
@@ -328,17 +340,24 @@
     if (!modal) { onDone(); return; }
     modal.classList.add('open');
     const btn = document.getElementById('btn-hand-tutorial-done');
+    const closeBtn = document.getElementById('btn-hand-tutorial-close');
 
     function dismiss() {
       modal.classList.remove('open');
       document.removeEventListener('keydown', onKey);
       onDone();
     }
+    function cancel() {
+      modal.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+    }
     function onKey(e) {
-      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
+      if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+      else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
     }
     document.addEventListener('keydown', onKey);
     if (btn) btn.onclick = dismiss;
+    if (closeBtn) closeBtn.onclick = cancel;
   }
 
   function showNewKeyIntro(lesson, onDone) {
@@ -372,17 +391,24 @@
 
     modal.classList.add('open');
     const btn = document.getElementById('btn-new-keys-done');
+    const closeBtn = document.getElementById('btn-new-keys-close');
 
     function dismiss() {
       modal.classList.remove('open');
       document.removeEventListener('keydown', onKey);
       onDone();
     }
+    function cancel() {
+      modal.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+    }
     function onKey(e) {
-      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
+      if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+      else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
     }
     document.addEventListener('keydown', onKey);
     if (btn) btn.onclick = dismiss;
+    if (closeBtn) closeBtn.onclick = cancel;
   }
 
   function _beginSession(lessonId) {
@@ -801,6 +827,13 @@
     const accEl = document.getElementById('summary-accuracy');
     accEl.className = 'val ' + (accuracy >= 95 ? 'good' : accuracy >= 85 ? 'accent' : 'warning');
 
+    // Header copy — changes based on pass/fail
+    const headerEl = document.querySelector('#screen-summary .summary-header');
+    if (headerEl) {
+      headerEl.querySelector('h2').textContent = unlocked ? 'Session Complete 🎉' : 'Session Complete';
+      headerEl.querySelector('p').textContent = unlocked ? 'Great work — lesson passed!' : 'Here\'s how you did.';
+    }
+
     // Lesson unlocked banner
     const banner = document.getElementById('unlock-banner');
     if (unlocked && nextLesson) {
@@ -809,6 +842,31 @@
         `Lesson ${nextLesson.id}: ${nextLesson.title}`;
     } else {
       banner.classList.add('hidden');
+    }
+
+    // Not-passed notice
+    const notPassed = document.getElementById('not-passed-notice');
+    const reasonsList = document.getElementById('not-passed-reasons');
+    if (!unlocked) {
+      const lesson = Lessons.get(lessonId);
+      const targetWpm = lesson ? lesson.targetWpm : 20;
+      const targetAccuracy = lesson ? (lesson.targetAccuracy || 90) : 90;
+      reasonsList.innerHTML = '';
+      if (accuracy < targetAccuracy) {
+        const li = document.createElement('li');
+        li.className = 'not-passed-fail';
+        li.textContent = `Accuracy: ${accuracy}% — need ${targetAccuracy}%`;
+        reasonsList.appendChild(li);
+      }
+      if (wpm < targetWpm) {
+        const li = document.createElement('li');
+        li.className = 'not-passed-fail';
+        li.textContent = `Speed: ${wpm} WPM — need ${targetWpm} WPM`;
+        reasonsList.appendChild(li);
+      }
+      notPassed.classList.remove('hidden');
+    } else {
+      notPassed.classList.add('hidden');
     }
 
     // Problem keys
@@ -845,13 +903,6 @@
 
     // AI feedback
     fetchAiFeedback(sessionData);
-
-    // Keyboard nav — filter out hidden buttons (next-lesson may be hidden)
-    KeyNav.setGroup([
-      document.getElementById('btn-retry'),
-      document.getElementById('btn-next-lesson'),
-      document.getElementById('btn-lessons-from-summary'),
-    ]);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

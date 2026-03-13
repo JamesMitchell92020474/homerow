@@ -575,12 +575,16 @@ input:focus, select:focus, textarea:focus {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .keyboard-legend {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  justify-content: center;
   margin-bottom: 0.75rem;
 }
 .legend-item {
@@ -727,6 +731,31 @@ input:focus, select:focus, textarea:focus {
 }
 .unlock-banner .icon { font-size: 1.4rem; }
 .unlock-banner strong { color: var(--success); }
+
+.not-passed-notice {
+  background: rgba(255, 90, 90, 0.08);
+  border: 1px solid rgba(255, 90, 90, 0.35);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.25rem;
+  font-size: 0.88rem;
+}
+.not-passed-heading {
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+}
+.not-passed-reasons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.not-passed-fail {
+  color: #ff6b6b;
+}
+.not-passed-fail::before { content: '✗  '; }
 
 /* Problem keys */
 .problem-keys-section { }
@@ -1052,7 +1081,23 @@ input:focus, select:focus, textarea:focus {
   width: 100%;
   box-shadow: var(--shadow);
   animation: modalIn 0.2s ease;
+  position: relative;
 }
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  transition: color 0.15s, background 0.15s;
+}
+.modal-close:hover { color: var(--text); background: var(--border); }
 @keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: none; opacity: 1; } }
 
 .modal h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }

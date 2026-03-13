@@ -71,6 +71,8 @@ When you open HomeRow you'll see the welcome screen with a colour-coded home row
 
 Below the keys, the three learning phases are shown as horizontal colour-coded bars — green for Beginner, yellow for Intermediate, red for Advanced — matching the traffic-light finger colours used throughout the app. Clicking the **HomeRow** logo in the top-left returns to this screen from anywhere.
 
+The main button reads **Start Learning** on your first visit and changes to **Continue Learning** once you have completed at least one session.
+
 ---
 
 ## Hand Placement Tutorial
@@ -83,21 +85,21 @@ Tips shown in the tutorial:
 - Return after every keystroke — always come back to home row between reaches
 - Eyes on the screen — the keyboard diagram shows which finger to use at all times
 
-**To dismiss this screen:** click the button, or press **Space** or **Enter**.
+**To dismiss this screen:** click the button, or press **Space** or **Enter**. To back out without starting the session, click the **✕** in the top-right corner or press **Escape**.
 
 ---
 
 ## New Key Introduction
 
-At the start of any lesson that introduces new keys, HomeRow shows a brief card for each new key: which finger presses it and what the reach feels like. Lessons 1 and 2 include an extra note identifying them as the Left Hand Home Row and Right Hand Home Row respectively.
+At the start of any lesson that introduces new keys, HomeRow shows a brief card for each new key: which finger presses it and what the reach feels like. Lessons 1 and 2 include an extra note identifying them as the Left Hand Home Row and Right Hand Home Row respectively. Lesson 1 also introduces the **spacebar** here, since it is used throughout the very first exercises.
 
-**To dismiss this screen:** click the button, or press **Space** or **Enter**.
+**To dismiss this screen:** click the button, or press **Space** or **Enter**. To back out without starting the session, click the **✕** in the top-right corner or press **Escape**.
 
 ---
 
 ## The Animated Finger Guide
 
-Below the typing area you'll see a keyboard diagram. The key you need to type next is highlighted in blue and pulses gently. Colour-coded borders on each key show which finger to use:
+Below the typing area you'll see a keyboard diagram, centred on the screen. A colour legend above the diagram shows which colour corresponds to which finger. The key you need to type next is highlighted in blue and pulses gently. Colour-coded borders on each key show which finger to use:
 
 | Colour | Finger |
 |--------|--------|
@@ -108,6 +110,19 @@ Below the typing area you'll see a keyboard diagram. The key you need to type ne
 | Blue | Thumb (space) |
 
 Keep your eyes on the screen, not the keyboard. That's the whole point of touch typing.
+
+---
+
+## Session Summary
+
+After every session, HomeRow shows your WPM, accuracy, duration, and lesson number. If you met both the accuracy and WPM targets, a **Lesson Unlocked** banner confirms you can move on.
+
+If you didn't meet the targets, a notice explains exactly what fell short — for example:
+
+- *Accuracy: 87% — need 90%*
+- *Speed: 18 WPM — need 25 WPM*
+
+The targets for each lesson are shown on the lesson card before you start. Keep practising the same lesson until both are met — the next lesson unlocks automatically.
 
 ---
 

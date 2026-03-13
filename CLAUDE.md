@@ -51,7 +51,7 @@ Keys are introduced following established typing pedagogy: home row first (most 
 
 | Lesson | New Keys | Rationale |
 |--------|----------|-----------|
-| 1 | A S D F | Left home row. Foundation of touch typing. |
+| 1 | A S D F Space | Left home row. Foundation of touch typing. Space introduced here as it is used from the first exercise. |
 | 2 | J K L ; | Right home row. Both hands on home row. |
 | 3 | E I | Two most common vowels, top row, middle fingers. |
 | 4 | T O | High-frequency consonant and vowel, index/ring reach. |
@@ -288,6 +288,8 @@ The welcome screen (`#screen-welcome`) has three sections between the tagline an
 
 3. The **HomeRow logo** in the toolbar is a `<button data-screen="welcome">` — clicking it navigates back to the welcome screen from anywhere. Styled via `#toolbar .logo` with `cursor: pointer` and `opacity` hover.
 
+4. The **Start Learning / Continue Learning** button (`#btn-start`) — text is set dynamically in `showScreen('welcome')` based on whether `Storage.getAll().sessions` is non-empty. First visit: "Start Learning →". Returning user: "Continue Learning →".
+
 ---
 
 ## Button Styles and Keyboard Navigation
@@ -313,8 +315,8 @@ Transitions:
 - Any mouse movement → exits keyboard mode immediately (`onMouse()` clears `.kb-focus` and resets `idx = -1`).
 
 `KeyNav.setGroup(buttons)` is called with the relevant button elements when a screen is shown or a modal opens. Groups are set for:
-- **Welcome screen**: `[btn-start, btn-import-welcome]`
-- **Session summary**: `[btn-retry, btn-next-lesson, btn-lessons-from-summary]` (hidden buttons filtered out)
+- **Welcome screen**: `[btn-start, btn-import-welcome]` — set inside `showScreen('welcome')`
+- **Session summary**: `[btn-retry, btn-next-lesson, btn-lessons-from-summary]` — set inside `showScreen('summary')`, **after** `renderSummary()` has run and set button visibility. Do not set this group inside `renderSummary()` — `showScreen()` calls `KeyNav.clear()` for all screens unless explicitly handled, so setting it in `renderSummary()` would be immediately overwritten.
 - **Reset modal**: `[btn-cancel-reset, btn-confirm-reset]`
 
 Space or Enter activates the focused button when keyboard mode is active.
@@ -364,17 +366,43 @@ If `lesson.newKeysNote` is set, it is shown as a coloured subtitle (`#new-keys-n
 - Lesson 1: `"Left Hand Home Row — your left fingers rest here between every keystroke."`
 - Lesson 2: `"Right Hand Home Row — these complete all eight home row keys. Both hands are now in position."`
 
-### Modal keyboard dismissal
+### Modal close (X button)
 
-Both modals support **Space or Enter** as keyboard shortcuts to dismiss, in addition to clicking the button. `showHandTutorial` and `showNewKeyIntro` each add a `keydown` listener that calls the same `dismiss()` function as the button. The listener is removed immediately on dismissal to prevent leaking into the typing session.
+Both modals have a `.modal-close` button (`#btn-hand-tutorial-close`, `#btn-new-keys-close`) in the top-right corner. Clicking it — or pressing **Escape** — calls `cancel()`, which closes the modal without starting the session. This is distinct from `dismiss()`, which closes the modal and proceeds.
+
+### Modal keyboard shortcuts
+
+- **Space / Enter** → `dismiss()` — proceeds to the next step (new-key intro or session)
+- **Escape** → `cancel()` — closes the modal, returns to lessons screen
+
+Each modal adds a single `keydown` listener that handles both; the listener is removed immediately when either function runs to prevent leaking into the typing session.
 
 ```javascript
 function onKey(e) {
-  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
+  if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
 }
 document.addEventListener('keydown', onKey);
-// removed inside dismiss() via document.removeEventListener('keydown', onKey)
 ```
+
+---
+
+## Summary Screen
+
+`renderSummary(sessionData, unlocked, nextLesson)` in `app.js` is called before `showScreen('summary')`. It:
+
+1. Populates stats (WPM, accuracy, duration, lesson number) and colours them by bracket.
+2. Updates the header copy dynamically: `"Session Complete 🎉"` / `"Great work — lesson passed!"` if `unlocked`; `"Session Complete"` / `"Here's how you did."` if not.
+3. Shows the **unlock banner** (`#unlock-banner`) if `unlocked && nextLesson`.
+4. Shows the **not-passed notice** (`#not-passed-notice`) if `!unlocked` — lists exactly which thresholds were missed:
+   - Accuracy: `${accuracy}% — need ${targetAccuracy}%`
+   - Speed: `${wpm} WPM — need ${targetWpm} WPM`
+   - Only the failing items are listed. `unlocked === false` means the lesson was not already completed AND this session missed at least one threshold.
+5. Renders problem key chips.
+6. Shows/hides the **Next Lesson** button based on whether the next lesson is now unlocked.
+7. Calls `fetchAiFeedback()`.
+
+KeyNav for the summary is set in `showScreen('summary')`, not in `renderSummary()`.
 
 ---
 

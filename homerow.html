@@ -200,6 +200,12 @@
       </div>
     </div>
 
+    <!-- Not-passed notice (shown if thresholds not met) -->
+    <div id="not-passed-notice" class="not-passed-notice hidden">
+      <p class="not-passed-heading">Not quite — keep practising this lesson.</p>
+      <ul id="not-passed-reasons" class="not-passed-reasons"></ul>
+    </div>
+
     <!-- Problem keys -->
     <div class="problem-keys-section">
       <h3>Problem Keys This Session</h3>
@@ -381,6 +387,7 @@
 ════════════════════════════════════════════════════════════ -->
 <div id="modal-hand-tutorial" class="modal-overlay">
   <div class="modal modal-wide">
+    <button class="modal-close" id="btn-hand-tutorial-close" aria-label="Close">✕</button>
     <h3>Hand Position — Before You Start</h3>
     <p>Touch typing starts with your fingers in the right place. Spend 30 seconds on this and every lesson will go more smoothly.</p>
 
@@ -450,6 +457,7 @@
 ════════════════════════════════════════════════════════════ -->
 <div id="modal-new-keys" class="modal-overlay">
   <div class="modal modal-wide">
+    <button class="modal-close" id="btn-new-keys-close" aria-label="Close">✕</button>
     <h3>New Keys This Lesson</h3>
     <p id="new-keys-note" class="new-keys-note" hidden></p>
     <p>Here's which finger to use for each new key. The keyboard diagram will highlight the correct finger as you type — don't worry about memorising this now.</p>
