@@ -2,6 +2,10 @@
 
 This file is the authoritative reference for Claude Code and developers working on this project. Read it before making changes.
 
+## Working Conventions
+
+- **Do not commit or push** unless the user explicitly asks. Make changes, then stop and wait for instruction.
+
 ---
 
 ## Project Structure
@@ -271,7 +275,49 @@ Accent, success, error, warning, and info colours are intentionally shared betwe
 
 ## Welcome Screen
 
-The welcome screen (`#screen-welcome`) displays a colour-coded home row key graphic (`.welcome-homerow`) between the tagline and the phase cards. Keys use the same finger-colour CSS variables as the session keyboard diagram. F and J show a bump indicator via `.welcome-anchor::after`.
+The welcome screen (`#screen-welcome`) has three sections between the tagline and the buttons:
+
+1. **Home row key graphic** (`.welcome-homerow`) — colour-coded A S D F · J K L ; keys using the finger-colour CSS variables. F and J show a bump indicator via `.welcome-anchor::after`.
+
+2. **Phase cards** (`.welcome-phases`) — three full-width horizontal bars stacked vertically, one per phase. Each card has a modifier class (`phase-card--beginner`, `phase-card--intermediate`, `phase-card--advanced`) that applies a traffic-light colour scheme matching the finger colours:
+   - Beginner: green tint using `--finger-index` values
+   - Intermediate: yellow tint using `--finger-middle` values
+   - Advanced: red tint using `--finger-pinky` values
+
+   Each card is `display: flex` with the phase label (`.phase-label` → `.phase-tag` + `.phase-lessons`) on the left and the content (`.phase-content` → `h3` + `p`) on the right.
+
+3. The **HomeRow logo** in the toolbar is a `<button data-screen="welcome">` — clicking it navigates back to the welcome screen from anywhere. Styled via `#toolbar .logo` with `cursor: pointer` and `opacity` hover.
+
+---
+
+## Button Styles and Keyboard Navigation
+
+### Button styles
+
+All buttons default to a neutral, non-filled appearance. The accent colour only appears on interaction (hover or keyboard focus):
+
+- **`.btn-primary`** — outline style: blue border, no fill, accent text. Hover: blue fill + white text.
+- **`.btn-secondary`** — grey border, muted text. Hover: blue fill + white text.
+- **`.btn-danger`** — red tint. Hover: deeper red tint (unchanged by keyboard nav).
+- **`.kb-focus`** — applied by `KeyNav` to the keyboard-focused button. Same visual as hover: blue fill + white text, using `!important` to override button type.
+
+### KeyNav — arrow key navigation
+
+`KeyNav` (defined in `app.js`) manages keyboard focus for screens with multiple action buttons. It operates in two mutually exclusive modes:
+
+- **Mouse mode** (default): no classes applied, hover styles work naturally.
+- **Keyboard mode**: active while user is pressing arrow keys. The focused button gets `.kb-focus`.
+
+Transitions:
+- Any arrow key press → enters keyboard mode. First Right/Down focuses button 0; first Left/Up focuses last button.
+- Any mouse movement → exits keyboard mode immediately (`onMouse()` clears `.kb-focus` and resets `idx = -1`).
+
+`KeyNav.setGroup(buttons)` is called with the relevant button elements when a screen is shown or a modal opens. Groups are set for:
+- **Welcome screen**: `[btn-start, btn-import-welcome]`
+- **Session summary**: `[btn-retry, btn-next-lesson, btn-lessons-from-summary]` (hidden buttons filtered out)
+- **Reset modal**: `[btn-cancel-reset, btn-confirm-reset]`
+
+Space or Enter activates the focused button when keyboard mode is active.
 
 ---
 

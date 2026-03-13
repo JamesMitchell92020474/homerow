@@ -40,7 +40,7 @@ To move to the next lesson, you need:
 
 You now know all the home row keys and start exploring the full keyboard. Every letter of the alphabet is introduced in a sensible order: most common and most comfortable first. Sessions get a little longer because your fingers need more practice to build reliable pathways.
 
-### Phase 3 — Advanced (Lessons 15+)
+### Phase 3 — Advanced (Lessons 15–20)
 **Session length: 30–45 minutes**
 
 Numbers, punctuation, symbols, and long real-world text passages. This is where you push your speed and develop true fluency. Sessions are longer and the text is more varied and challenging.
@@ -68,6 +68,8 @@ If your accuracy drops below 80% on any drill, HomeRow will repeat that drill be
 ## The Welcome Screen
 
 When you open HomeRow you'll see the welcome screen with a colour-coded home row key display (A S D F · J K L ;). Each key is bordered in the colour of the finger that presses it — a quick visual reminder of what you'll be learning from the very first lesson.
+
+Below the keys, the three learning phases are shown as horizontal colour-coded bars — green for Beginner, yellow for Intermediate, red for Advanced — matching the traffic-light finger colours used throughout the app. Clicking the **HomeRow** logo in the top-left returns to this screen from anywhere.
 
 ---
 
