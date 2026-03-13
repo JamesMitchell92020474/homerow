@@ -1337,8 +1337,8 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     // Typing — capture all keydown events
     document.addEventListener('keydown', handleKeydown);
 
-    // Toolbar navigation
-    document.querySelectorAll('.nav-btn[data-screen]').forEach(btn => {
+    // Toolbar navigation (includes logo button)
+    document.querySelectorAll('[data-screen]').forEach(btn => {
       btn.addEventListener('click', () => showScreen(btn.dataset.screen));
     });
 
