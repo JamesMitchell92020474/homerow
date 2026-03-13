@@ -55,10 +55,13 @@
     let group = [];
     let idx   = -1;
 
-    function clearFocus() { group.forEach(b => b.classList.remove('kb-focus')); }
+    function clearFocus() {
+      group.forEach(b => { b.classList.remove('kb-focus'); b.classList.remove('kb-in-group'); });
+    }
 
     function applyFocus() {
       clearFocus();
+      group.forEach(b => b.classList.add('kb-in-group'));
       if (idx >= 0 && idx < group.length) group[idx].classList.add('kb-focus');
     }
 

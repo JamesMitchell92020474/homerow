@@ -323,12 +323,18 @@ input:focus, select:focus, textarea:focus {
 }
 .btn-secondary:hover { color: var(--text); filter: none; background: var(--border); }
 
-/* Keyboard navigation focus — arrow keys highlight the active button */
-.kb-focus {
+/* Keyboard navigation — de-emphasise all buttons in the group equally */
+.kb-in-group {
+  background: var(--card) !important;
+  color: var(--text-dim) !important;
+  border: 1px solid var(--border) !important;
+  filter: none !important;
+}
+/* Then highlight only the focused one */
+.kb-in-group.kb-focus {
   background: var(--accent) !important;
   color: #fff !important;
   border-color: transparent !important;
-  filter: none !important;
   outline: none;
 }
 
