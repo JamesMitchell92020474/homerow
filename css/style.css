@@ -307,34 +307,29 @@ input:focus, select:focus, textarea:focus {
 .phase-card p  { font-size: 0.82rem; color: var(--text-dim); }
 
 .btn-primary {
-  background: var(--accent);
-  color: #fff;
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
   font-size: 1rem;
   font-weight: 600;
   padding: 0.75rem 2rem;
   border-radius: var(--radius-sm);
 }
-.btn-primary:hover { filter: brightness(1.12); }
+.btn-primary:hover { background: var(--accent); color: #fff; filter: none; }
 
 .btn-secondary {
   background: var(--card);
   color: var(--text-dim);
   border: 1px solid var(--border);
 }
-.btn-secondary:hover { color: var(--text); filter: none; background: var(--border); }
+.btn-secondary:hover { background: var(--accent); color: #fff; border-color: var(--accent); filter: none; }
 
-/* Keyboard navigation — de-emphasise all buttons in the group equally */
-.kb-in-group {
-  background: var(--card) !important;
-  color: var(--text-dim) !important;
-  border: 1px solid var(--border) !important;
-  filter: none !important;
-}
-/* Then highlight only the focused one */
-.kb-in-group.kb-focus {
+/* Keyboard navigation focus — same visual as hover */
+.kb-focus {
   background: var(--accent) !important;
   color: #fff !important;
-  border-color: transparent !important;
+  border-color: var(--accent) !important;
+  filter: none !important;
   outline: none;
 }
 

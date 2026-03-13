@@ -53,15 +53,14 @@
 
   const KeyNav = (() => {
     let group  = [];
-    let idx    = 0;
-    let active = false; // true only while user is navigating with arrow keys
+    let idx    = -1;  // -1 = no selection; set on first arrow press
+    let active = false;
 
     function clearVisual() {
-      group.forEach(b => { b.classList.remove('kb-focus'); b.classList.remove('kb-in-group'); });
+      group.forEach(b => b.classList.remove('kb-focus'));
     }
 
     function applyVisual() {
-      group.forEach(b => b.classList.add('kb-in-group'));
       if (idx >= 0 && idx < group.length) group[idx].classList.add('kb-focus');
     }
 
@@ -69,21 +68,22 @@
     function onMouse() {
       if (!active) return;
       active = false;
+      idx = -1; // reset so next arrow press starts fresh from first/last button
       clearVisual();
     }
 
     function setGroup(buttons) {
       clearVisual();
       group  = (buttons || []).filter(b => b && !b.classList.contains('hidden') && !b.disabled);
-      idx    = 0;
-      active = false; // always start in mouse mode; keyboard mode entered on first arrow press
+      idx    = -1;
+      active = false;
     }
 
     function move(delta) {
       if (group.length < 2) return false;
-      if (!active) {
-        // First arrow press enters keyboard mode without moving — focuses first or last button
-        active = true;
+      active = true;
+      if (idx === -1) {
+        // First arrow press — land on first or last button depending on direction
         idx = delta > 0 ? 0 : group.length - 1;
       } else {
         idx = (idx + delta + group.length) % group.length;
@@ -99,7 +99,7 @@
       return true;
     }
 
-    function clear() { clearVisual(); group = []; idx = 0; active = false; }
+    function clear() { clearVisual(); group = []; idx = -1; active = false; }
     function isActive() { return active && group.length > 0; }
 
     return { setGroup, onMouse, move, activate, clear, isActive };
