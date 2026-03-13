@@ -260,12 +260,17 @@
     if (!modal) { onDone(); return; }
     modal.classList.add('open');
     const btn = document.getElementById('btn-hand-tutorial-done');
-    if (btn) {
-      btn.onclick = () => {
-        modal.classList.remove('open');
-        onDone();
-      };
+
+    function dismiss() {
+      modal.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+      onDone();
     }
+    function onKey(e) {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
+    }
+    document.addEventListener('keydown', onKey);
+    if (btn) btn.onclick = dismiss;
   }
 
   function showNewKeyIntro(lesson, onDone) {
@@ -289,12 +294,17 @@
 
     modal.classList.add('open');
     const btn = document.getElementById('btn-new-keys-done');
-    if (btn) {
-      btn.onclick = () => {
-        modal.classList.remove('open');
-        onDone();
-      };
+
+    function dismiss() {
+      modal.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+      onDone();
     }
+    function onKey(e) {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); dismiss(); }
+    }
+    document.addEventListener('keydown', onKey);
+    if (btn) btn.onclick = dismiss;
   }
 
   function _beginSession(lessonId) {

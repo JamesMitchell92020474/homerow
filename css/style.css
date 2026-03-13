@@ -1054,6 +1054,20 @@ input:focus, select:focus, textarea:focus {
 .legend-item[data-finger="right-middle"] { color: var(--finger-middle); }
 .legend-item[data-finger="left-index"],
 .legend-item[data-finger="right-index"]  { color: var(--finger-index); }
+.legend-item[data-finger="thumb"]        { color: var(--finger-thumb); }
+
+/* Spacebar row */
+.tutorial-spacebar-row {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 0.75rem;
+}
+.tutorial-spacebar {
+  width: 280px;
+  height: 40px;
+  border-radius: 6px;
+}
+.tutorial-key[data-finger="thumb"] { border-color: var(--finger-thumb); color: var(--finger-thumb); }
 
 /* Tips list */
 .tutorial-tips {
