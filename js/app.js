@@ -1359,7 +1359,11 @@
 
     const topProblems = Tracker.getSessionProblemKeys(3);
     const problemStr = topProblems.length > 0
-      ? topProblems.map(p => `${p.key === ' ' ? 'space' : p.key.toUpperCase()} (${Math.round(p.errorRate * 100)}% error rate)`).join(', ')
+      ? topProblems.map(p => {
+          const label = p.key === ' ' ? 'space' : p.key.toUpperCase();
+          const finger = (KEY_INFO[p.key] || {}).finger || '';
+          return `${label} (${finger}, ${Math.round(p.errorRate * 100)}% error rate)`;
+        }).join(', ')
       : 'none significant';
 
     const prompt = `You are a friendly, encouraging touch-typing coach. Give a short (3–4 sentence) personalised feedback summary for a student who just completed a typing session.
@@ -1558,7 +1562,7 @@ Student data:
 - Recent average accuracy: ${accRecent}%
 - Persistent problem keys: ${problemStr}
 
-Comment on their overall trajectory, acknowledge what they've built, and give one specific focus for their next sessions. Be warm and concrete. Under 100 words.`;
+Comment on their overall trajectory, acknowledge what they've built, and give one specific focus for their next sessions. Be warm and concrete. Under 100 words. Do not include a heading or title — start directly with the feedback.`;
 
     try {
       const resp = await fetch('./server/proxy.php', {
@@ -1568,7 +1572,8 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
       });
       const result = await resp.json();
       if (result.error) throw new Error(result.error);
-      el.innerHTML = `<p>${escapeHtml(result.feedback)}</p>`;
+      const cleaned = result.feedback.replace(/^#+\s*[^\n]*\n+/, '').trim();
+      el.innerHTML = `<p>${escapeHtml(cleaned)}</p>`;
     } catch {
       el.innerHTML = `<p>${escapeHtml(generateHistoryTemplateFeedback(sessions))}</p>`;
     }

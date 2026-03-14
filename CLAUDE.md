@@ -512,7 +512,7 @@ The prompt sent to the model includes:
 - Lesson number and phase
 - Session WPM and accuracy
 - Duration
-- Top 3 problem keys with error rates
+- Top 3 problem keys with finger assignment and error rates (e.g. `K (Right Middle, 11% error rate)`) — finger label sourced from `KEY_INFO[key].finger`
 - WPM trend vs last 3–6 sessions
 
 ### proxy.php flow
@@ -550,7 +550,7 @@ No errors are thrown and all other features work normally.
 
 ### History screen AI summary
 
-`fetchHistoryAiFeedback(sessions)` in `app.js` is called from `renderHistory()` when `sessions.length >= 3`. It posts to the same proxy with a prompt summarising the student's overall arc: WPM at start vs recently, average accuracy, lessons completed, and persistent problem keys. The result appears in `#history-ai-text` inside `#history-ai-wrap` (`.ai-feedback` block) above the chart. A ↺ refresh button (`#btn-history-ai-refresh`) re-calls the function.
+`fetchHistoryAiFeedback(sessions)` in `app.js` is called from `renderHistory()` when `sessions.length >= 3`. It posts to the same proxy with a prompt summarising the student's overall arc: WPM at start vs recently, average accuracy, lessons completed, and persistent problem keys. The prompt instructs the model not to include a heading or title. Before rendering, any leading markdown heading line is stripped from the response via `.replace(/^#+\s*[^\n]*\n+/, '')`. The result appears in `#history-ai-text` inside `#history-ai-wrap` (`.ai-feedback` block) above the chart. A ↺ refresh button (`#btn-history-ai-refresh`) re-calls the function.
 
 `generateHistoryTemplateFeedback(sessions)` is the fallback — called silently when not hosted or when the API call fails. It produces a 3–4 sentence summary covering sessions/lessons completed, WPM progress (early vs recent), accuracy bracket, and top problem keys. Indistinguishable in appearance from the AI version.
 
@@ -563,7 +563,7 @@ HomeRow is designed to be self-hosted on a subdomain such as `homerow.yourdomain
 ### Steps
 
 1. **Create the subdomain** in cPanel's Subdomain Manager, pointing to a folder such as `public_html/homerow`. The subdomain can be created independently — no main site is required first.
-2. **Upload the project files** via cPanel File Manager or an FTP client. Upload everything in the `homerow/` folder (not the folder itself) to `public_html/homerow/`.
+2. **Upload the project files** via cPanel File Manager or an FTP client. Upload everything in the `homerow/` folder (not the folder itself) to `public_html/homerow/`. **Rename `homerow.html` to `index.html`** on the server so the subdomain URL resolves to it automatically without specifying a filename.
 3. **Configure the API key** in `server/config.php` on the server. Replace `'your-api-key-here'` with your real Anthropic API key.
 4. **Verify** by opening `homerow.yourdomain.co.nz` in a browser. The proxy should work automatically.
 
