@@ -12,7 +12,7 @@ This file is the authoritative reference for Claude Code and developers working 
 
 ```
 homerow/
-├── homerow.html              Main app entry point — links all CSS and JS
+├── index.html              Main app entry point — links all CSS and JS
 ├── css/
 │   └── style.css             All visual styling; CSS variables for theming
 ├── js/
@@ -34,7 +34,7 @@ homerow/
 └── CLAUDE.md                 This file
 ```
 
-**Script load order in homerow.html (matters):**
+**Script load order in index.html (matters):**
 1. `storage.js` — no dependencies
 2. `tracker.js` — depends on `window.Storage`
 3. `lessons.js` — depends on `window.Storage`, `window.Tracker`
@@ -563,7 +563,7 @@ HomeRow is designed to be self-hosted on a subdomain such as `homerow.yourdomain
 ### Steps
 
 1. **Create the subdomain** in cPanel's Subdomain Manager, pointing to a folder such as `public_html/homerow`. The subdomain can be created independently — no main site is required first.
-2. **Upload the project files** via cPanel File Manager or an FTP client. Upload everything in the `homerow/` folder (not the folder itself) to `public_html/homerow/`. **Rename `homerow.html` to `index.html`** on the server so the subdomain URL resolves to it automatically without specifying a filename.
+2. **Upload the project files** via cPanel File Manager or an FTP client. Upload everything in the `homerow/` folder (not the folder itself) to `public_html/homerow/`.
 3. **Configure the API key** in `server/config.php` on the server. Replace `'your-api-key-here'` with your real Anthropic API key.
 4. **Verify** by opening `homerow.yourdomain.co.nz` in a browser. The proxy should work automatically.
 
@@ -589,7 +589,7 @@ If a future version requires shared cross-device progress (e.g. for a classroom)
 Append to `LESSON_DATA` in `js/lessons.js`. Follow the existing schema.
 
 ### New settings
-Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Settings screen in `homerow.html`, and wire up the change handler in `bindGlobalEvents()` in `app.js`.
+Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Settings screen in `index.html`, and wire up the change handler in `bindGlobalEvents()` in `app.js`.
 
 ### Mobile detection
 
@@ -602,7 +602,7 @@ Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Set
 `showScreen(name)` writes the screen name to `sessionStorage` (`homerow_screen`). On `init()`, if the user has existing data, this value is read back and used to restore the last screen. Only the screens `welcome`, `lessons`, `history`, and `settings` are restorable — `session` and `summary` are transient and fall back to `lessons`.
 
 ### New screens
-1. Add a `<main id="screen-name">` block in `homerow.html`
+1. Add a `<main id="screen-name">` block in `index.html`
 2. Add a `.nav-btn[data-screen="name"]` button
 3. Add rendering logic in `app.js → showScreen()` if needed
 4. If it should be restorable on refresh, add it to the `restorable` array in `init()`

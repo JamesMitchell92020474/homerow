@@ -14,7 +14,7 @@ HomeRow teaches you to type the right way: home row first, then one key at a tim
 
 ## How to Open HomeRow
 
-1. Find the `homerow.html` file in your HomeRow folder.
+1. Find the `index.html` file in your HomeRow folder.
 2. Double-click it — it will open in your default web browser.
 3. That's it. No installation, no server, no setup required.
 
@@ -230,7 +230,7 @@ Achievements are saved as part of your progress data and are included in Save/Lo
 
 ```
 homerow/
-├── homerow.html          ← Open this in your browser
+├── index.html          ← Open this in your browser
 ├── css/style.css         ← All styling
 ├── js/                   ← App logic
 ├── assets/sounds/        ← keypress.wav and error.wav
