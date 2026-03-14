@@ -185,9 +185,12 @@
     {
       id: 'sharpshooter',
       name: 'Sharpshooter',
-      description: 'Complete a session with 95% accuracy or better.',
+      description: 'Pass a lesson on your very first attempt with 90% accuracy or better.',
       icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="20" cy="20" r="13"/><circle cx="20" cy="20" r="6"/><circle cx="20" cy="20" r="2" fill="currentColor" stroke="none"/><line x1="20" y1="3" x2="20" y2="11"/><line x1="20" y1="29" x2="20" y2="37"/><line x1="3" y1="20" x2="11" y2="20"/><line x1="29" y1="20" x2="37" y2="20"/></svg>`,
-      check: (s) => s.accuracy >= 95,
+      check: (s, data) => {
+        const progress = data.lessonProgress && data.lessonProgress[s.lessonId];
+        return s.accuracy >= 90 && progress && progress.attempts === 1 && progress.completed;
+      },
     },
     {
       id: 'ghost_fingers',
@@ -354,22 +357,8 @@
       return card;
     }
 
-    // Clear grid and any previous platinum row
     grid.innerHTML = '';
-    const oldRow = document.querySelector('.achievements-platinum-row');
-    if (oldRow) oldRow.remove();
-
-    // Regular achievements fill the grid
-    ACHIEVEMENTS.filter(a => !a.platinum).forEach(a => grid.appendChild(makeCard(a)));
-
-    // Platinum card sits centred below in its own row
-    const platinum = ACHIEVEMENTS.find(a => a.platinum);
-    if (platinum) {
-      const row = document.createElement('div');
-      row.className = 'achievements-platinum-row';
-      row.appendChild(makeCard(platinum));
-      grid.after(row);
-    }
+    ACHIEVEMENTS.forEach(a => grid.appendChild(makeCard(a)));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -739,6 +728,56 @@
     document.getElementById('typing-text').focus();
   }
 
+  const PHASE_COMPLETIONS = {
+    7:  {
+      phase: 'Beginner',
+      label: 'Beginner Complete',
+      colour: 'var(--finger-index)',
+      message: 'You\'ve built the foundation every great typist starts from. The home row is yours — now the full keyboard awaits.',
+      achievementId: 'home_base',
+    },
+    14: {
+      phase: 'Intermediate',
+      label: 'Intermediate Complete',
+      colour: 'var(--finger-middle)',
+      message: 'Every letter of the alphabet, learned and locked in. You\'re typing real words with real speed now.',
+      achievementId: 'levelling_up',
+    },
+    20: {
+      phase: 'Advanced',
+      label: 'Course Complete',
+      colour: 'var(--finger-pinky)',
+      message: 'You\'ve completed every lesson HomeRow has to offer. Numbers, punctuation, speed — all of it. You\'re a touch typist.',
+      achievementId: 'full_board',
+    },
+  };
+
+  function showPhaseComplete(phaseData) {
+    const icon   = document.getElementById('phase-complete-icon');
+    const label  = document.getElementById('phase-complete-label');
+    const title  = document.getElementById('phase-complete-title');
+    const msg    = document.getElementById('phase-complete-message');
+    const aName  = document.getElementById('phase-complete-achievement-name');
+    const screen = document.getElementById('screen-phase-complete');
+
+    // Populate content
+    label.textContent = phaseData.label;
+    title.textContent = phaseData.phase === 'Advanced' ? 'You did it.' : 'Phase Complete!';
+    msg.textContent   = phaseData.message;
+
+    // Achievement icon + name
+    const achievement = ACHIEVEMENTS.find(a => a.id === phaseData.achievementId);
+    if (achievement) {
+      icon.innerHTML  = achievement.icon;
+      aName.textContent = achievement.name;
+    }
+
+    // Apply phase colour
+    screen.style.setProperty('--phase-colour', phaseData.colour);
+
+    showScreen('phase-complete');
+  }
+
   function endSession() {
     if (State.sessionTimerInterval) clearInterval(State.sessionTimerInterval);
     if (State.wpmInterval) clearInterval(State.wpmInterval);
@@ -768,7 +807,16 @@
     State.drillInjected = false;
 
     renderSummary(sessionData, unlocked, nextLesson);
-    showScreen('summary');
+
+    // Check for phase completion — first-time pass of lesson 7, 14, or 20
+    const lessonId = State.session.lessonId;
+    const phaseData = PHASE_COMPLETIONS[lessonId];
+    const progress = Storage.getLessonProgress(lessonId);
+    if (phaseData && unlocked && progress.attempts === 1) {
+      showPhaseComplete(phaseData);
+    } else {
+      showScreen('summary');
+    }
   }
 
   function calculateSessionWpm() {
@@ -1360,6 +1408,61 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     }
   }
 
+  function generateHistoryTemplateFeedback(sessions) {
+    const data        = Storage.getAll();
+    const all         = sessions.slice(-30);
+    const recent      = all.slice(-3);
+    const early       = all.slice(0, 3);
+    const avgWpm      = arr => Math.round(arr.reduce((a, s) => a + s.wpm, 0) / arr.length);
+    const avgAcc      = arr => Math.round(arr.reduce((a, s) => a + s.accuracy, 0) / arr.length);
+    const wpmEarly    = avgWpm(early);
+    const wpmRecent   = avgWpm(recent);
+    const accRecent   = avgAcc(recent);
+    const currentLesson = data.currentLesson || 1;
+    const lessonsCompleted = Object.values(data.lessonProgress || {}).filter(l => l.completed).length;
+
+    const topKeys = Object.entries(data.problemKeys || {})
+      .map(([k, v]) => ({ key: k, rate: v.total > 0 ? v.misses / v.total : 0, total: v.total }))
+      .filter(k => k.total >= 10 && k.rate > 0.15)
+      .sort((a, b) => b.rate - a.rate)
+      .slice(0, 2);
+
+    const sentences = [];
+
+    // Sessions + lesson progress
+    if (lessonsCompleted > 0) {
+      sentences.push(`You've completed ${all.length} session${all.length !== 1 ? 's' : ''} and passed ${lessonsCompleted} lesson${lessonsCompleted !== 1 ? 's' : ''} — currently on lesson ${currentLesson}.`);
+    } else {
+      sentences.push(`You've completed ${all.length} session${all.length !== 1 ? 's' : ''} and are on lesson ${currentLesson}.`);
+    }
+
+    // WPM progress
+    if (all.length >= 6 && wpmRecent > wpmEarly + 2) {
+      sentences.push(`Your speed has grown from around ${wpmEarly} WPM early on to ${wpmRecent} WPM recently — a solid improvement.`);
+    } else if (all.length >= 6 && wpmRecent < wpmEarly - 2) {
+      sentences.push(`Your recent WPM (${wpmRecent}) is a little lower than your earlier average (${wpmEarly}) — that's normal when tackling harder keys, keep going.`);
+    } else {
+      sentences.push(`You're averaging around ${wpmRecent} WPM recently with ${accRecent}% accuracy.`);
+    }
+
+    // Accuracy note
+    if (accRecent >= 95) {
+      sentences.push(`Your accuracy is excellent — keep prioritising clean strokes as speed builds.`);
+    } else if (accRecent >= 90) {
+      sentences.push(`Your accuracy is solid at ${accRecent}% — a little more focus on problem keys will push it higher.`);
+    } else {
+      sentences.push(`Accuracy at ${accRecent}% is the main area to focus on — slow down slightly and aim for clean keystrokes before pushing speed.`);
+    }
+
+    // Problem keys
+    if (topKeys.length > 0) {
+      const keyNames = topKeys.map(k => k.key === ' ' ? 'Space' : k.key.toUpperCase()).join(' and ');
+      sentences.push(`Your most persistent problem key${topKeys.length > 1 ? 's are' : ' is'} ${keyNames} — give ${topKeys.length > 1 ? 'them' : 'it'} extra attention in your next session.`);
+    }
+
+    return sentences.join(' ');
+  }
+
   async function fetchHistoryAiFeedback(sessions) {
     const wrap = document.getElementById('history-ai-wrap');
     const el   = document.getElementById('history-ai-text');
@@ -1368,7 +1471,7 @@ Be specific, warm, and actionable. Don't repeat stats verbatim — interpret the
     el.innerHTML = `<span class="loading">Generating your progress summary…</span>`;
 
     if (!isHosted()) {
-      el.innerHTML = `<span class="unavailable">Progress summaries are available when HomeRow is hosted online.</span>`;
+      el.innerHTML = `<p>${escapeHtml(generateHistoryTemplateFeedback(sessions))}</p>`;
       return;
     }
 
@@ -1417,7 +1520,7 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
       if (result.error) throw new Error(result.error);
       el.innerHTML = `<p>${escapeHtml(result.feedback)}</p>`;
     } catch {
-      el.innerHTML = `<span class="unavailable">Progress summary unavailable right now.</span>`;
+      el.innerHTML = `<p>${escapeHtml(generateHistoryTemplateFeedback(sessions))}</p>`;
     }
   }
 
@@ -1768,6 +1871,10 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
 
     const importWelcome = document.getElementById('btn-import-welcome');
     if (importWelcome) importWelcome.addEventListener('click', triggerImport);
+
+    // Phase complete screen
+    const phaseContinueBtn = document.getElementById('btn-phase-continue');
+    if (phaseContinueBtn) phaseContinueBtn.addEventListener('click', () => showScreen('summary'));
 
     // Summary screen
     const retryBtn = document.getElementById('btn-retry');

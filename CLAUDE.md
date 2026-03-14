@@ -409,7 +409,7 @@ document.addEventListener('keydown', onKey);
 }
 ```
 
-The 12 regular achievements cover: accuracy (95%, 100%, 5-in-a-row), speed (30/50/70 WPM), streaks (3/7 consecutive days), phase completion (beginner/intermediate/advanced), and problem key recovery. The platinum **The HomeRow Legend** checks that all 12 others are unlocked.
+The 12 regular achievements cover: first-attempt pass at 90%+ (Sharpshooter), 100% accuracy (Ghost Fingers), 5-in-a-row at 95%+ (Iron Discipline), speed (30/50/70 WPM), streaks (3/7 consecutive days), phase completion (beginner/intermediate/advanced), and problem key recovery. The platinum **The HomeRow Legend** checks that all 12 others are unlocked.
 
 ### Storage
 
@@ -422,13 +422,34 @@ The 12 regular achievements cover: accuracy (95%, 100%, 5-in-a-row), speed (30/5
 
 `renderNewAchievements(newlyUnlocked)` shows/hides the `#new-achievements-banner` on the summary screen with a gold banner listing each newly earned achievement and its icon.
 
-`renderAchievements()` is called by `showScreen('achievements')`. It renders the 12 regular cards into `#achievements-grid` (CSS grid), then appends the platinum card centred below in a `.achievements-platinum-row` div. Locked cards get `.locked` (40% opacity); unlocked get `.unlocked` (blue left border); platinum unlocked gets `.platinum.unlocked` (gold styling throughout).
+`renderAchievements()` is called by `showScreen('achievements')`. It renders all 13 cards into `#achievements-grid` — a fixed 3-column CSS grid. The platinum card has `grid-column: 2` so it sits in the centre column of the final row. Locked cards get `.locked` (40% opacity); unlocked get `.unlocked` (blue left border); platinum unlocked gets `.platinum.unlocked` (gold styling throughout). On screens ≤680px the grid collapses to 2 columns and the platinum card spans full width.
 
 `getMaxConsecutiveDays(sessions)` is a helper that computes the longest streak of calendar days with at least one session.
 
 ### Screen
 
 `#screen-achievements` is a restorable screen (added to the `restorable` array in `init()`). Nav button: `<button class="nav-btn" data-screen="achievements">Achievements</button>`.
+
+---
+
+## Phase Complete Screen
+
+`#screen-phase-complete` is a transient screen (not in the restorable list) shown when a user passes the final lesson of a phase (7, 14, or 20) for the first time.
+
+**Trigger** in `endSession()`:
+```javascript
+const phaseData = PHASE_COMPLETIONS[lessonId];
+const progress  = Storage.getLessonProgress(lessonId);
+if (phaseData && unlocked && progress.attempts === 1) showPhaseComplete(phaseData);
+else showScreen('summary');
+```
+`renderSummary()` is always called first so the summary is pre-rendered. The phase complete screen simply delays showing it.
+
+**`PHASE_COMPLETIONS`** — keyed by lesson ID (7, 14, 20). Each entry has `phase`, `label`, `colour` (CSS variable matching the traffic-light phase colour), `message`, and `achievementId`.
+
+**`showPhaseComplete(phaseData)`** populates the screen elements, sets `--phase-colour` as a CSS custom property on the screen element, and calls `showScreen('phase-complete')`. The achievement icon is pulled from the `ACHIEVEMENTS` array by `achievementId`.
+
+**"View Results →"** button calls `showScreen('summary')`.
 
 ---
 
@@ -520,7 +541,9 @@ No errors are thrown and all other features work normally.
 
 ### History screen AI summary
 
-`fetchHistoryAiFeedback(sessions)` in `app.js` is called from `renderHistory()` when `sessions.length >= 3`. It posts to the same proxy with a prompt summarising the student's overall arc: WPM at start vs recently, average accuracy, lessons completed, and persistent problem keys. The result appears in `#history-ai-text` inside `#history-ai-wrap` (`.ai-feedback` block) above the chart. A ↺ refresh button (`#btn-history-ai-refresh`) re-calls the function. Only available when hosted; shows a short unavailable message on `file://`.
+`fetchHistoryAiFeedback(sessions)` in `app.js` is called from `renderHistory()` when `sessions.length >= 3`. It posts to the same proxy with a prompt summarising the student's overall arc: WPM at start vs recently, average accuracy, lessons completed, and persistent problem keys. The result appears in `#history-ai-text` inside `#history-ai-wrap` (`.ai-feedback` block) above the chart. A ↺ refresh button (`#btn-history-ai-refresh`) re-calls the function.
+
+`generateHistoryTemplateFeedback(sessions)` is the fallback — called silently when not hosted or when the API call fails. It produces a 3–4 sentence summary covering sessions/lessons completed, WPM progress (early vs recent), accuracy bracket, and top problem keys. Indistinguishable in appearance from the AI version.
 
 ---
 

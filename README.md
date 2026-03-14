@@ -117,6 +117,12 @@ Keep your eyes on the screen, not the keyboard. That's the whole point of touch 
 
 ---
 
+## Phase Complete
+
+When you pass the final lesson of a phase for the first time (Lesson 7, 14, or 20), a brief celebration screen appears before the session summary. It shows the phase achievement icon, a congratulations message, and the name of the achievement you just earned. Click **View Results →** to continue to your session stats.
+
+---
+
 ## Session Summary
 
 After every session, HomeRow shows your WPM, accuracy, duration, and lesson number. The WPM and Accuracy boxes each show the lesson target beneath them so you can see at a glance how close you were. If you met both targets, a **Lesson Unlocked** banner confirms you can move on.
@@ -192,7 +198,7 @@ The **Achievements** screen tracks 13 milestones you can earn through practice. 
 
 | Achievement | How to earn it |
 |-------------|----------------|
-| Sharpshooter | Complete a session with 95%+ accuracy |
+| Sharpshooter | Pass a lesson on your very first attempt with 90%+ accuracy |
 | Ghost Fingers | Complete a session with 100% accuracy |
 | Iron Discipline | Achieve 95%+ accuracy in 5 sessions in a row |
 | Up to Speed | Hit 30 WPM in a session |
