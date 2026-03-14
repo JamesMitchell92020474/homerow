@@ -428,6 +428,45 @@
       const data = Storage.getAll();
       const hasProgress = data.sessions && data.sessions.length > 0;
       document.getElementById('btn-start').textContent = hasProgress ? 'Continue Learning →' : 'Start Learning →';
+      const importWelcomeBtn = document.getElementById('btn-import-welcome');
+      if (importWelcomeBtn) importWelcomeBtn.classList.toggle('hidden', !hasProgress);
+
+      // Progress bar
+      const lessonProgress = data ? (data.lessonProgress || {}) : {};
+      const phaseRanges = [
+        { id: 'beginner',     start: 1,  end: 7,  total: 7 },
+        { id: 'intermediate', start: 8,  end: 14, total: 7 },
+        { id: 'advanced',     start: 15, end: 20, total: 6 },
+      ];
+      let allDone = true;
+      phaseRanges.forEach(({ id, start, end, total }) => {
+        let completed = 0;
+        for (let i = start; i <= end; i++) {
+          if (lessonProgress[i] && lessonProgress[i].completed) completed++;
+        }
+        if (completed < total) allDone = false;
+        const fill = document.getElementById(`progress-fill-${id}`);
+        const count = document.getElementById(`progress-count-${id}`);
+        if (fill) fill.style.width = (completed / total * 100) + '%';
+        if (count) count.textContent = `${completed} / ${total}`;
+      });
+
+      // Hint text
+      const hint = document.getElementById('welcome-phase-hint');
+      if (hint) {
+        const phase = data ? (data.currentPhase || 'beginner') : 'beginner';
+        const hintMap = {
+          beginner:     "You're in the Beginner phase — focus on accuracy over speed.",
+          intermediate: "You're in the Intermediate phase — expanding across the full keyboard.",
+          advanced:     "You're in the Advanced phase — building speed and fluency.",
+        };
+        hint.textContent = allDone
+          ? "You've completed all lessons — keep pushing your speed."
+          : hasProgress
+            ? (hintMap[phase] || hintMap.beginner)
+            : 'Start with the home row — we\'ll build from there.';
+      }
+
       KeyNav.setGroup([
         document.getElementById('btn-start'),
         document.getElementById('btn-import-welcome'),
@@ -481,7 +520,7 @@
       const phaseLabels = {
         beginner:     'Beginner — Lessons 1–7 · 15–20 min',
         intermediate: 'Intermediate — Lessons 8–14 · 25–30 min',
-        advanced:     'Advanced — Lessons 15+ · 30–45 min',
+        advanced:     'Advanced — Lessons 15–20 · 30–45 min',
       };
       section.innerHTML = `<h3>${phaseLabels[phase]}</h3>`;
 
@@ -583,13 +622,24 @@
     const cardsEl = document.getElementById('new-key-cards');
     if (!modal || !cardsEl) { onDone(); return; }
 
-    cardsEl.innerHTML = lesson.newKeys.map(key => {
+    const sortedKeys = [...lesson.newKeys].sort((a, b) => {
+      const order = k => {
+        const fc = (KEY_INFO[k] || {}).fingerClass || '';
+        if (fc.startsWith('finger-left'))  return 0;
+        if (fc.startsWith('finger-right')) return 1;
+        return 2; // thumb / spacebar last
+      };
+      return order(a) - order(b);
+    });
+
+    cardsEl.innerHTML = sortedKeys.map(key => {
       const info = KEY_INFO[key];
       if (!info) return '';
-      const label = key === ' ' ? 'Space' : key.toUpperCase();
+      const isSpace = key === ' ';
+      const label = isSpace ? 'Space' : key.toUpperCase();
       return `
-        <div class="new-key-card">
-          <div class="key-badge-large ${info.fingerClass}">${label}</div>
+        <div class="new-key-card${isSpace ? ' new-key-card--spacebar' : ''}">
+          <div class="key-badge-large ${info.fingerClass}${isSpace ? ' key-badge-spacebar' : ''}">${label}</div>
           <div class="new-key-info">
             <div class="key-finger-label">${info.finger}</div>
             <div class="key-reach-desc">${info.desc}</div>
@@ -1020,16 +1070,16 @@
   }
 
   function getLiveWpm() {
-    if (!State.typingStart) return 0;
-    const minutes = (new Date() - State.typingStart) / 60000;
+    if (!State.sessionStart) return 0;
+    const minutes = (new Date() - State.sessionStart) / 60000;
     if (minutes < 0.02) return 0;
-    return Math.round((State.correct / 5) / minutes);
+    return Math.round((State.totalCorrect / 5) / minutes);
   }
 
   function getLiveAccuracy() {
-    const total = State.correct + State.errors;
+    const total = State.totalCorrect + State.totalErrors;
     if (total === 0) return 100;
-    return Math.round((State.correct / total) * 100);
+    return Math.round((State.totalCorrect / total) * 100);
   }
 
   function updateProgressBar() {
@@ -1782,9 +1832,27 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
   //  EXPORT / IMPORT
   // ═══════════════════════════════════════════════════════════════════════════
 
-  function triggerExport() {
-    const filename = Storage.exportData();
-    showToast(`Progress exported as ${filename}`, 'success');
+  async function triggerExport() {
+    const { json, filename } = Storage.getExportJson();
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(json);
+        await writable.close();
+        showToast(`Saved as ${handle.name}`, 'success');
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          Storage.exportData(); // fallback if picker fails unexpectedly
+        }
+        // AbortError = user cancelled = no feedback needed
+      }
+    } else {
+      Storage.exportData(); // legacy fallback — browser download UI is the confirmation
+    }
   }
 
   function triggerImport() {

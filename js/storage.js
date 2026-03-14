@@ -187,12 +187,18 @@ window.Storage = (() => {
 
   // ─── Export / Import ─────────────────────────────────────────────────────────
 
-  function exportData() {
+  function getExportJson() {
     const data = getAll() || defaults();
-    const json = JSON.stringify(data, null, 2);
     const date = new Date().toISOString().split('T')[0];
     const lesson = data.currentLesson || 1;
-    const filename = `homerow-lesson${lesson}-${date}.json`;
+    return {
+      json: JSON.stringify(data, null, 2),
+      filename: `homerow-lesson${lesson}-${date}.json`,
+    };
+  }
+
+  function exportData() {
+    const { json, filename } = getExportJson();
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -202,7 +208,6 @@ window.Storage = (() => {
     a.click();
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    return filename;
   }
 
   function importData(json) {
@@ -250,6 +255,7 @@ window.Storage = (() => {
     saveApiKey,
     getAchievements,
     unlockAchievement,
+    getExportJson,
     exportData,
     importData,
     clearAll,

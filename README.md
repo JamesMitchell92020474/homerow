@@ -73,9 +73,9 @@ If your accuracy drops below 80% on any drill, HomeRow will repeat that drill be
 
 When you open HomeRow you'll see the welcome screen with a colour-coded home row key display (A S D F · J K L ;). Each key is bordered in the colour of the finger that presses it — a quick visual reminder of what you'll be learning from the very first lesson.
 
-Below the keys, the three learning phases are shown as horizontal colour-coded bars — green for Beginner, yellow for Intermediate, red for Advanced — matching the traffic-light finger colours used throughout the app. Clicking the **HomeRow** logo in the top-left returns to this screen from anywhere.
+Below the keys, a segmented progress bar shows your completion across all three phases — green for Beginner, yellow for Intermediate, red for Advanced — with a lesson count and fill level for each segment. A single line of hint text below the bar reflects your current phase and encourages you with context-sensitive guidance. Clicking the **HomeRow** logo in the top-left returns to this screen from anywhere.
 
-The main button reads **Start Learning** on your first visit and changes to **Continue Learning** once you have completed at least one session. The **Load Progress** button on the welcome screen lets you restore a previously saved file without going into Settings.
+The main button reads **Start Learning** on your first visit and changes to **Continue Learning** once you have completed at least one session. The **Load Progress** button on the welcome screen lets you restore a previously saved file without going into Settings — it is hidden on your very first visit and appears once you have session history.
 
 ---
 
@@ -177,7 +177,7 @@ AI coaching is handled automatically by the server — no setup required. If it 
 HomeRow saves your progress automatically in your browser. But if you switch browsers, reinstall your OS, or want to use HomeRow on another computer, you can save and load your progress manually.
 
 ### Save Progress
-Click the **Save Progress** button — available in Settings, on the Lessons screen, and on the Session Summary screen after each session. A file named `homerow-lesson{N}-YYYY-MM-DD.json` will download. Keep it somewhere safe.
+Click the **Save Progress** button — available in Settings, on the Lessons screen, and on the Session Summary screen after each session. In modern browsers, a save-file dialog will open so you can choose where to save it; in older browsers the file downloads automatically. The default filename is `homerow-lesson{N}-YYYY-MM-DD.json`. Keep it somewhere safe.
 
 ### Load Progress
 Click **Load Progress** in Settings, on the Lessons screen, or on the Welcome screen. Select your previously saved `.json` file and your progress will be restored.
@@ -234,5 +234,6 @@ homerow/
 ├── css/style.css         ← All styling
 ├── js/                   ← App logic
 ├── assets/sounds/        ← keypress.wav and error.wav
+├── assets/icons/         ← favicon.svg
 └── server/               ← PHP proxy for hosted AI feedback
 ```

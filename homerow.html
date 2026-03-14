@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HomeRow — Touch Typing Tutor</title>
   <meta name="description" content="HomeRow: a structured, phase-based touch typing tutor with AI coaching feedback.">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -59,37 +60,37 @@
       <div class="welcome-key" data-finger="right-pinky">;</div>
     </div>
 
-    <div class="welcome-phases">
-      <div class="phase-card phase-card--beginner">
-        <div class="phase-label">
-          <span class="phase-tag">Beginner</span>
-          <span class="phase-lessons">Lessons 1–7</span>
+    <div class="welcome-progress">
+      <div class="welcome-progress-bar">
+        <div class="progress-segment progress-segment--beginner">
+          <div class="progress-segment-track">
+            <div class="progress-segment-fill" id="progress-fill-beginner"></div>
+          </div>
+          <div class="progress-segment-label">
+            <span class="progress-segment-name">Beginner</span>
+            <span class="progress-segment-count" id="progress-count-beginner">0 / 7</span>
+          </div>
         </div>
-        <div class="phase-content">
-          <h3>Home Row First</h3>
-          <p>Build accurate finger placement on the home row keys before anything else.</p>
+        <div class="progress-segment progress-segment--intermediate">
+          <div class="progress-segment-track">
+            <div class="progress-segment-fill" id="progress-fill-intermediate"></div>
+          </div>
+          <div class="progress-segment-label">
+            <span class="progress-segment-name">Intermediate</span>
+            <span class="progress-segment-count" id="progress-count-intermediate">0 / 7</span>
+          </div>
+        </div>
+        <div class="progress-segment progress-segment--advanced">
+          <div class="progress-segment-track">
+            <div class="progress-segment-fill" id="progress-fill-advanced"></div>
+          </div>
+          <div class="progress-segment-label">
+            <span class="progress-segment-name">Advanced</span>
+            <span class="progress-segment-count" id="progress-count-advanced">0 / 6</span>
+          </div>
         </div>
       </div>
-      <div class="phase-card phase-card--intermediate">
-        <div class="phase-label">
-          <span class="phase-tag">Intermediate</span>
-          <span class="phase-lessons">Lessons 8–14</span>
-        </div>
-        <div class="phase-content">
-          <h3>Full Keyboard</h3>
-          <p>Introduce every letter row by row, building speed alongside accuracy.</p>
-        </div>
-      </div>
-      <div class="phase-card phase-card--advanced">
-        <div class="phase-label">
-          <span class="phase-tag">Advanced</span>
-          <span class="phase-lessons">Lessons 15–20</span>
-        </div>
-        <div class="phase-content">
-          <h3>Speed &amp; Fluency</h3>
-          <p>Numbers, symbols, and real-world passages. Push beyond 45 WPM.</p>
-        </div>
-      </div>
+      <p class="welcome-phase-hint" id="welcome-phase-hint"></p>
     </div>
 
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
@@ -279,8 +280,8 @@
 
     <!-- Actions -->
     <div class="summary-actions">
-      <button id="btn-retry" class="btn-secondary">Try Again</button>
       <button id="btn-next-lesson" class="btn-primary hidden">Next Lesson →</button>
+      <button id="btn-retry" class="btn-secondary">Try Again</button>
       <button id="btn-lessons-from-summary" class="btn-secondary">All Lessons</button>
       <button id="btn-save-summary" class="btn-secondary">Save Progress</button>
     </div>
@@ -413,7 +414,7 @@
       <div class="setting-row">
         <div class="setting-info">
           <label>Save / Load Progress</label>
-          <p>Save all your progress, stats, and preferences as a JSON file.</p>
+          <p>Save all your progress, stats, achievements, and preferences as a JSON file.</p>
         </div>
         <div class="export-import-row">
           <button id="btn-export" class="btn-secondary">Save Progress</button>
@@ -428,7 +429,7 @@
       <div class="setting-row">
         <div class="setting-info">
           <label>Reset All Progress</label>
-          <p>Permanently delete all lessons, stats, and saved data. This cannot be undone.</p>
+          <p>Permanently delete all lessons, stats, achievements, and saved data. This cannot be undone.</p>
         </div>
         <button id="btn-reset" class="btn-danger">Reset Everything</button>
       </div>
@@ -448,53 +449,55 @@
     <p>Touch typing starts with your fingers in the right place. Spend 30 seconds on this and every lesson will go more smoothly.</p>
 
     <div class="tutorial-keyboard">
-      <div class="tutorial-hand-group">
-        <div class="tutorial-hand-label">Left Hand — Home Row</div>
-        <div class="tutorial-hand-keys">
-          <div class="tutorial-key-col">
-            <div class="tutorial-key" data-finger="left-pinky">A</div>
-            <span class="tutorial-key-label" data-finger="left-pinky">Pinky</span>
+      <div class="tutorial-hands-row">
+        <div class="tutorial-hand-group">
+          <div class="tutorial-hand-label">Left Hand — Home Row</div>
+          <div class="tutorial-hand-keys">
+            <div class="tutorial-key-col">
+              <div class="tutorial-key" data-finger="left-pinky">A</div>
+              <span class="tutorial-key-label" data-finger="left-pinky">Pinky</span>
+            </div>
+            <div class="tutorial-key-col">
+              <div class="tutorial-key" data-finger="left-ring">S</div>
+              <span class="tutorial-key-label" data-finger="left-ring">Ring</span>
+            </div>
+            <div class="tutorial-key-col">
+              <div class="tutorial-key" data-finger="left-middle">D</div>
+              <span class="tutorial-key-label" data-finger="left-middle">Middle</span>
+            </div>
+            <div class="tutorial-key-col">
+              <div class="tutorial-key tutorial-anchor" data-finger="left-index">F</div>
+              <span class="tutorial-key-label" data-finger="left-index">Index</span>
+            </div>
           </div>
-          <div class="tutorial-key-col">
-            <div class="tutorial-key" data-finger="left-ring">S</div>
-            <span class="tutorial-key-label" data-finger="left-ring">Ring</span>
-          </div>
-          <div class="tutorial-key-col">
-            <div class="tutorial-key" data-finger="left-middle">D</div>
-            <span class="tutorial-key-label" data-finger="left-middle">Middle</span>
-          </div>
-          <div class="tutorial-key-col">
-            <div class="tutorial-key tutorial-anchor" data-finger="left-index">F</div>
-            <span class="tutorial-key-label" data-finger="left-index">Index</span>
+        </div>
+        <div class="tutorial-spacer"></div>
+        <div class="tutorial-hand-group">
+          <div class="tutorial-hand-label">Right Hand — Home Row</div>
+          <div class="tutorial-hand-keys">
+            <div class="tutorial-key-col">
+              <div class="tutorial-key tutorial-anchor" data-finger="right-index">J</div>
+              <span class="tutorial-key-label" data-finger="right-index">Index</span>
+            </div>
+            <div class="tutorial-key-col">
+              <div class="tutorial-key" data-finger="right-middle">K</div>
+              <span class="tutorial-key-label" data-finger="right-middle">Middle</span>
+            </div>
+            <div class="tutorial-key-col">
+              <div class="tutorial-key" data-finger="right-ring">L</div>
+              <span class="tutorial-key-label" data-finger="right-ring">Ring</span>
+            </div>
+            <div class="tutorial-key-col">
+              <div class="tutorial-key" data-finger="right-pinky">;</div>
+              <span class="tutorial-key-label" data-finger="right-pinky">Pinky</span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="tutorial-spacer"></div>
-      <div class="tutorial-hand-group">
-        <div class="tutorial-hand-label">Right Hand — Home Row</div>
-        <div class="tutorial-hand-keys">
-          <div class="tutorial-key-col">
-            <div class="tutorial-key tutorial-anchor" data-finger="right-index">J</div>
-            <span class="tutorial-key-label" data-finger="right-index">Index</span>
-          </div>
-          <div class="tutorial-key-col">
-            <div class="tutorial-key" data-finger="right-middle">K</div>
-            <span class="tutorial-key-label" data-finger="right-middle">Middle</span>
-          </div>
-          <div class="tutorial-key-col">
-            <div class="tutorial-key" data-finger="right-ring">L</div>
-            <span class="tutorial-key-label" data-finger="right-ring">Ring</span>
-          </div>
-          <div class="tutorial-key-col">
-            <div class="tutorial-key" data-finger="right-pinky">;</div>
-            <span class="tutorial-key-label" data-finger="right-pinky">Pinky</span>
-          </div>
-        </div>
+      <div class="tutorial-spacebar-col">
+        <div class="tutorial-key tutorial-spacebar" data-finger="thumb">Space</div>
+        <span class="tutorial-key-label" data-finger="thumb">Thumb</span>
       </div>
-    </div>
-    <div class="tutorial-spacebar-col">
-      <div class="tutorial-key tutorial-spacebar" data-finger="thumb">Space</div>
-      <span class="tutorial-key-label" data-finger="thumb">Thumb</span>
     </div>
 
     <ul class="tutorial-tips">
@@ -528,7 +531,7 @@
 <div id="modal-reset" class="modal-overlay">
   <div class="modal">
     <h3>Reset All Progress?</h3>
-    <p>This will permanently delete all your lessons, session history, problem key data, and preferences. This action cannot be undone. Export your progress first if you want a backup.</p>
+    <p>This will permanently delete all your lessons, session history, problem key data, achievements, and preferences. This action cannot be undone. Save your progress first if you want a backup.</p>
     <div class="modal-actions">
       <button id="btn-cancel-reset" class="btn-secondary">Cancel</button>
       <button id="btn-confirm-reset" class="btn-danger">Yes, Reset Everything</button>

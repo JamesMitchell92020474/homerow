@@ -55,7 +55,7 @@ window.Tracker = (() => {
    */
   function getSessionProblemKeys(n = 3) {
     return Object.entries(sessionStats)
-      .filter(([, v]) => v.total >= 3)
+      .filter(([, v]) => v.total >= 3 && Math.round(v.misses / v.total * 100) > 0)
       .map(([key, v]) => ({
         key,
         misses: v.misses,

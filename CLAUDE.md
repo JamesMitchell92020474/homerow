@@ -21,9 +21,11 @@ homerow/
 │   ├── lessons.js            Lesson curriculum data and progression logic
 │   └── app.js                Main app: screens, typing engine, AI, audio
 ├── assets/
-│   └── sounds/
-│       ├── keypress.wav      Correct keystroke sound — static WAV file
-│       └── error.wav         Incorrect keystroke sound — static WAV file
+│   ├── sounds/
+│   │   ├── keypress.wav      Correct keystroke sound — static WAV file
+│   │   └── error.wav         Incorrect keystroke sound — static WAV file
+│   └── icons/
+│       └── favicon.svg       SVG favicon — transparent key outline with blue bump dot
 ├── server/
 │   ├── proxy.php             Receives session data, calls Anthropic, returns feedback
 │   └── config.php            Holds ANTHROPIC_API_KEY — never commit this file
@@ -282,18 +284,20 @@ The welcome screen (`#screen-welcome`) has three sections between the tagline an
 
 1. **Home row key graphic** (`.welcome-homerow`) — colour-coded A S D F · J K L ; keys using the finger-colour CSS variables. F and J show a bump indicator via `.welcome-anchor::after`.
 
-2. **Phase cards** (`.welcome-phases`) — three full-width horizontal bars stacked vertically, one per phase. Each card has a modifier class (`phase-card--beginner`, `phase-card--intermediate`, `phase-card--advanced`) that applies a traffic-light colour scheme matching the finger colours:
-   - Beginner: green tint using `--finger-index` values
-   - Intermediate: yellow tint using `--finger-middle` values
-   - Advanced: red tint using `--finger-pinky` values
+2. **Progress bar** (`.welcome-progress`) — a segmented horizontal progress bar showing completion across all three phases. Three segments sit side-by-side inside `.welcome-progress-bar`:
+   - `.progress-segment--beginner` (flex: 7) — green fill using `--finger-index`
+   - `.progress-segment--intermediate` (flex: 7) — yellow fill using `--finger-middle`
+   - `.progress-segment--advanced` (flex: 6) — red fill using `--finger-pinky`
 
-   Each card is `display: flex` with the phase label (`.phase-label` → `.phase-tag` + `.phase-lessons`) on the left and the content (`.phase-content` → `h3` + `p`) on the right.
+   Each segment has a `.progress-segment-track` (grey background) with a `.progress-segment-fill` (coloured, width set dynamically as a percentage of lessons completed). Below the bar, a `.progress-segment-label` shows the phase name and a `completed / total` count. The fill widths and counts are set in `showScreen('welcome')` from `lessonProgress` data.
+
+   Below the bar, `#welcome-phase-hint` (`.welcome-phase-hint`) shows a single dynamic line of text: the current phase hint if in progress, "Start with the home row" on first visit, or a completion message once all lessons are done.
 
 3. The **HomeRow logo** in the toolbar is a `<button data-screen="welcome">` — clicking it navigates back to the welcome screen from anywhere. Styled via `#toolbar .logo` with `cursor: pointer` and `opacity` hover.
 
 4. The **Start Learning / Continue Learning** button (`#btn-start`) — text is set dynamically in `showScreen('welcome')` based on whether `Storage.getAll().sessions` is non-empty. First visit: "Start Learning →". Returning user: "Continue Learning →".
 
-5. The **Load Progress** button (`#btn-import-welcome`) on the welcome screen — calls `triggerImport()` directly, same as the Settings import.
+5. The **Load Progress** button (`#btn-import-welcome`) on the welcome screen — calls `triggerImport()` directly, same as the Settings import. Hidden on first visit (`hasProgress === false`); shown once at least one session exists.
 
 ---
 
@@ -353,20 +357,25 @@ Each key is wrapped in a `.tutorial-key-col` with the finger label (`.tutorial-k
 HTML structure:
 ```
 .tutorial-keyboard
-  .tutorial-hand-group  ← "Left Hand — Home Row"
-    .tutorial-hand-keys
-      .tutorial-key-col × 4  (A, S, D, F — each with .tutorial-key-label below)
-  .tutorial-spacer
-  .tutorial-hand-group  ← "Right Hand — Home Row"
-    .tutorial-hand-keys
-      .tutorial-key-col × 4  (J, K, L, ; — each with .tutorial-key-label below)
-.tutorial-spacebar-col
-  .tutorial-spacebar + .tutorial-key-label[data-finger="thumb"]
+  .tutorial-hands-row
+    .tutorial-hand-group  ← "Left Hand — Home Row"
+      .tutorial-hand-keys
+        .tutorial-key-col × 4  (A, S, D, F — each with .tutorial-key-label below)
+    .tutorial-spacer  ← flex:1, pushes hands apart
+    .tutorial-hand-group  ← "Right Hand — Home Row"
+      .tutorial-hand-keys
+        .tutorial-key-col × 4  (J, K, L, ; — each with .tutorial-key-label below)
+  .tutorial-spacebar-col   ← inside .tutorial-keyboard, full width
+    .tutorial-spacebar + .tutorial-key-label[data-finger="thumb"]
 ```
+
+The `.tutorial-keyboard` is `flex-direction: column`. `.tutorial-hands-row` is `display: flex` (horizontal). The spacebar is a direct child of `.tutorial-keyboard` below `.tutorial-hands-row`, so its `width: 100%` spans the full width of both hand groups.
 
 ### New key intro (`modal-new-keys`)
 
 Shown at the start of any lesson where `lesson.newKeys.length > 0`. Renders one `.new-key-card` per new key using `KEY_INFO` data from `app.js`.
+
+Keys are sorted before rendering: left-hand keys first, right-hand keys second, spacebar/thumb last (determined by `fingerClass` prefix). The spacebar card uses the additional class `.new-key-card--spacebar` (`grid-column: 1 / -1` — spans both columns) and the badge uses `.key-badge-spacebar` (wider, taller).
 
 If `lesson.newKeysNote` is set, it is shown as a coloured subtitle (`#new-keys-note`, `.new-keys-note`) above the description paragraph. Lessons 1 and 2 use this:
 - Lesson 1: `"Left Hand Home Row — your left fingers rest here between every keystroke."`
@@ -464,8 +473,8 @@ else showScreen('summary');
 5. Shows the **not-passed notice** (`#not-passed-notice`) if `!unlocked` — lists exactly which thresholds were missed.
 6. Shows the **Strict Mode prompt** (`#strict-mode-prompt`) once — only when `unlocked && completedCount === 1 && !seenStrictPrompt && !State.strictMode`. Dismissed via "Turn on Strict Mode" or "Not yet"; both set `seenStrictPrompt: true`.
 7. Syncs the **Strict Mode toggle** (`#summary-strict-check`) with `State.strictMode`. The toggle updates Settings and `State` in both directions.
-8. Renders problem key chips.
-9. Shows/hides the **Next Lesson** button based on whether the next lesson is now unlocked.
+8. Renders problem key chips — keys that round to 0% error rate are excluded.
+9. Shows/hides the **Next Lesson** button based on whether the next lesson is now unlocked. The **Next Lesson** button appears before the **Try Again** button in the DOM.
 10. Calls `checkAchievements()` and `renderNewAchievements()` — always runs regardless of pass/fail.
 11. Calls `fetchAiFeedback()`.
 
