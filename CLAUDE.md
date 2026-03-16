@@ -420,6 +420,8 @@ document.addEventListener('keydown', onKey);
 
 The 12 regular achievements cover: first-attempt pass at 90%+ (Sharpshooter), 100% accuracy (Ghost Fingers), 5-in-a-row at 95%+ (Iron Discipline), speed (30/50/70 WPM), streaks (3/7 consecutive days), phase completion (beginner/intermediate/advanced), and problem key recovery. The platinum **The HomeRow Legend** checks that all 12 others are unlocked.
 
+**Redemption Arc check logic:** walks `data.sessions`, collecting per-key error rates from `sess.problemKeys` entries where `total >= 10`. A key qualifies if it has at least 3 sessions on record, at least one historical rate above 30%, and both of the last two recorded sessions below 10%. This uses session-level snapshots rather than cumulative totals so the improvement arc is traceable over time.
+
 ### Storage
 
 `Storage.getAchievements()` returns `{ [id]: { unlockedAt: ISO string } }`.

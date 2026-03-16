@@ -280,8 +280,22 @@
       description: 'Turn a problem key around — bring a key\'s error rate below 10% after extensive practice.',
       icon: `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 34 C10 34 13 28 17 23 C21 18 24 15 28 11 C30 9 32 8 34 7"/><polyline points="27,7 34,7 34,14"/></svg>`,
       check: (s, data) => {
-        const keys = data.problemKeys || {};
-        return Object.values(keys).some(k => k.total >= 30 && (k.misses / k.total) < 0.10);
+        const sessions = data.sessions || [];
+        const keyHistory = {};
+        sessions.forEach(sess => {
+          const pk = sess.problemKeys || {};
+          Object.entries(pk).forEach(([key, stats]) => {
+            if (stats.total >= 10) {
+              if (!keyHistory[key]) keyHistory[key] = [];
+              keyHistory[key].push(stats.misses / stats.total);
+            }
+          });
+        });
+        return Object.values(keyHistory).some(rates =>
+          rates.length >= 3 &&
+          rates.some(r => r > 0.30) &&
+          rates.slice(-2).every(r => r < 0.10)
+        );
       },
     },
     {
@@ -2097,6 +2111,7 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
   }
+
 
   // ═══════════════════════════════════════════════════════════════════════════
   //  BOOT
