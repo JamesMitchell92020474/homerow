@@ -75,7 +75,7 @@ When you open HomeRow you'll see the welcome screen with a colour-coded home row
 
 Below the keys, a segmented progress bar shows your completion across all three phases — green for Beginner, yellow for Intermediate, red for Advanced — with a lesson count and fill level for each segment. A single line of hint text below the bar reflects your current phase and encourages you with context-sensitive guidance. Clicking the **HomeRow** logo in the top-left returns to this screen from anywhere.
 
-The main button reads **Start Learning** on your first visit and changes to **Continue Learning** once you have completed at least one session. The **Load Progress** button on the welcome screen lets you restore a previously saved file without going into Settings — it is hidden on your very first visit and appears once you have session history.
+The main button reads **Start Learning** on your first visit and changes to **Continue Learning** once you have completed at least one session. The **Load from File** button on the welcome screen lets you restore a previously saved file without going into Settings — it is hidden on your very first visit and appears once you have session history.
 
 ---
 
@@ -132,6 +132,8 @@ If you didn't meet the targets, a notice explains exactly what fell short — fo
 - *Accuracy: 87% — need 90%*
 - *Speed: 18 WPM — need 25 WPM*
 
+Below the stats, any keys you struggled with are shown as chips — for example **E — 3 misses (7%)**. The count tells you how many times you hit that key wrong; the percentage is the error rate (misses ÷ total presses of that key), which normalises for how often the key appeared in the text. A rare key missed once can have a higher rate than a common key missed three times.
+
 The summary screen also has a **Strict Mode** toggle so you can switch it on or off without going into Settings.
 
 ---
@@ -176,11 +178,28 @@ AI coaching is handled automatically by the server — no setup required. If it 
 
 HomeRow saves your progress automatically in your browser. But if you switch browsers, reinstall your OS, or want to use HomeRow on another computer, you can save and load your progress manually.
 
-### Save Progress
-Click the **Save Progress** button — available in Settings, on the Lessons screen, and on the Session Summary screen after each session. In modern browsers, a save-file dialog will open so you can choose where to save it; in older browsers the file downloads automatically. The default filename is `homerow-lesson{N}-YYYY-MM-DD.json`. Keep it somewhere safe.
+### Save to File
+Click the **Save to File** button — available in Settings, on the Lessons screen, and on the Session Summary screen after each session. In modern browsers, a save-file dialog will open so you can choose where to save it; in older browsers the file downloads automatically. The default filename is `homerow-lesson{N}-YYYY-MM-DD.json`. Keep it somewhere safe.
 
-### Load Progress
-Click **Load Progress** in Settings, on the Lessons screen, or on the Welcome screen. Select your previously saved `.json` file and your progress will be restored.
+### Load from File
+Click **Load from File** in Settings, on the Lessons screen, or on the Welcome screen. Select your previously saved `.json` file and your progress will be restored.
+
+---
+
+## Freeform Mode
+
+The **Freeform** button in the top navigation bar opens a free practice mode separate from the structured lessons.
+
+You are given a short passage to type — starting with the classic "The quick brown fox jumps over the lazy dog" and continuing with a brief story about the fox and the dog. The passage is long enough for a meaningful session but short enough to complete in a minute or two at a comfortable pace.
+
+**How it works:**
+- Just start typing — the box is already focused.
+- The text scrolls as you go, keeping the current line visible with the previous line above it for context.
+- A scrollbar lets you scroll back at any time to review your mistakes.
+- WPM, accuracy, and elapsed time are shown live in the header, just like a lesson session.
+- When you finish (or click **Finish & Get Feedback**), your stats are shown along with a problem key breakdown and an AI coaching note generated automatically.
+
+Freeform mode does not count toward lesson progress or achievements. It is intended as a warm-up, a benchmark, or a break from structured practice.
 
 ---
 

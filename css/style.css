@@ -533,7 +533,8 @@ input:focus, select:focus, textarea:focus {
   position: relative;
 }
 
-#typing-text {
+#typing-text,
+#freeform-text {
   font-family: 'Courier New', 'Consolas', monospace;
   font-size: 1.35rem;
   line-height: 2;
@@ -543,14 +544,19 @@ input:focus, select:focus, textarea:focus {
   outline: none;
 }
 
-#typing-text span {
+#typing-text span,
+#freeform-text span {
   position: relative;
   transition: color 0.05s;
 }
-#typing-text span.pending  { color: var(--text-faint); }
-#typing-text span.correct  { color: var(--success); }
-#typing-text span.error    { color: var(--error); text-decoration: underline; }
-#typing-text span.current {
+#typing-text span.pending,
+#freeform-text span.pending  { color: var(--text-faint); }
+#typing-text span.correct,
+#freeform-text span.correct  { color: var(--success); }
+#typing-text span.error,
+#freeform-text span.error    { color: var(--error); text-decoration: underline; }
+#typing-text span.current,
+#freeform-text span.current {
   color: var(--text);
   background: rgba(91,140,247,0.18);
   border-radius: 2px;
@@ -558,6 +564,15 @@ input:focus, select:focus, textarea:focus {
   outline-offset: 1px;
   animation: blink 1s step-end infinite;
 }
+
+/* Freeform typing area — fixed height, scrolls to keep current char visible */
+#screen-freeform .typing-area {
+  height: 200px;
+  overflow-y: scroll;
+}
+#screen-freeform .typing-area::-webkit-scrollbar { width: 6px; }
+#screen-freeform .typing-area::-webkit-scrollbar-track { background: transparent; }
+#screen-freeform .typing-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 @keyframes blink {
   50% { outline-color: transparent; }
 }
@@ -1617,7 +1632,7 @@ input:focus, select:focus, textarea:focus {
   .summary-stats { grid-template-columns: repeat(2, 1fr); }
   .kb-key { width: 28px; height: 28px; font-size: 0.6rem; }
   .kb-spacebar { width: 140px; }
-  #typing-text { font-size: 1.1rem; }
+  #typing-text, #freeform-text { font-size: 1.1rem; }
   .session-stats { gap: 0.75rem; }
   .stat-pill .stat-val { font-size: 1.1rem; }
 }
@@ -1658,5 +1673,25 @@ input:focus, select:focus, textarea:focus {
   color: var(--text-dim);
   font-size: 0.95rem;
   line-height: 1.6;
+}
+
+/* ─── Freeform Screen ────────────────────────────────────────────────────────── */
+
+#screen-freeform {
+  gap: 1rem;
+}
+
+.freeform-results {
+  border-top: 2px solid var(--border);
+  padding-top: 2rem;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.freeform-ai-btn {
+  margin-top: 1rem;
+  display: inline-block;
 }
 

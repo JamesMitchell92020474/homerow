@@ -33,6 +33,7 @@
 
     <nav id="toolbar-nav">
       <button class="nav-btn" data-screen="lessons">Lessons</button>
+      <button class="nav-btn" id="btn-nav-freeform">Freeform</button>
       <button class="nav-btn" data-screen="history">History</button>
       <button class="nav-btn" data-screen="achievements">Achievements</button>
       <button class="nav-btn" data-screen="settings">Settings</button>
@@ -100,7 +101,7 @@
 
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
       <button id="btn-start" class="btn-primary">Start Learning →</button>
-      <button id="btn-import-welcome" class="btn-secondary">Load Progress</button>
+      <button id="btn-import-welcome" class="btn-secondary">Load from File</button>
     </div>
   </main>
 
@@ -112,8 +113,8 @@
     <p class="subtitle">Complete each lesson to unlock the next. Requires 90% accuracy and meeting the WPM target.</p>
     <div id="lessons-grid-root"></div>
     <div class="lessons-actions">
-      <button id="btn-save-lessons" class="btn-secondary">Save Progress</button>
-      <button id="btn-load-lessons" class="btn-secondary">Load Progress</button>
+      <button id="btn-save-lessons" class="btn-secondary">Save to File</button>
+      <button id="btn-load-lessons" class="btn-secondary">Load from File</button>
     </div>
   </main>
 
@@ -288,7 +289,7 @@
       <button id="btn-next-lesson" class="btn-primary hidden">Next Lesson →</button>
       <button id="btn-retry" class="btn-secondary">Try Again</button>
       <button id="btn-lessons-from-summary" class="btn-secondary">All Lessons</button>
-      <button id="btn-save-summary" class="btn-secondary">Save Progress</button>
+      <button id="btn-save-summary" class="btn-secondary">Save to File</button>
     </div>
 
   </main>
@@ -418,12 +419,12 @@
 
       <div class="setting-row">
         <div class="setting-info">
-          <label>Save / Load Progress</label>
+          <label>Save / Load from File</label>
           <p>Save all your progress, stats, achievements, and preferences as a JSON file.</p>
         </div>
         <div class="export-import-row">
-          <button id="btn-export" class="btn-secondary">Save Progress</button>
-          <button id="btn-import" class="btn-secondary">Load Progress</button>
+          <button id="btn-export" class="btn-secondary">Save to File</button>
+          <button id="btn-import" class="btn-secondary">Load from File</button>
         </div>
       </div>
     </div>
@@ -437,6 +438,107 @@
           <p>Permanently delete all lessons, stats, achievements, and saved data. This cannot be undone.</p>
         </div>
         <button id="btn-reset" class="btn-danger">Reset Everything</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SCREEN: FREEFORM MODE
+  ════════════════════════════════════════════════════════════════════════ -->
+  <main id="screen-freeform" class="screen">
+
+    <!-- Header -->
+    <div class="session-header">
+      <div class="session-info">
+        <h2>Freeform Mode</h2>
+        <span class="phase-badge" style="background: rgba(91,140,247,0.15); color: var(--accent); border: 1px solid rgba(91,140,247,0.35);">story</span>
+      </div>
+      <div class="session-stats">
+        <div class="stat-pill">
+          <div class="stat-val" id="freeform-wpm">0</div>
+          <div class="stat-lbl">WPM</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val" id="freeform-accuracy">100%</div>
+          <div class="stat-lbl">Accuracy</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val" id="freeform-time">0:00</div>
+          <div class="stat-lbl">Time</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress through passage -->
+    <div class="progress-track">
+      <div class="progress-fill" id="freeform-progress-fill" style="width: 0%"></div>
+    </div>
+
+    <!-- Typing area -->
+    <div class="typing-area">
+      <div id="freeform-text" tabindex="0" aria-label="Freeform typing text" role="textbox" aria-readonly="true"></div>
+    </div>
+
+    <!-- Keyboard diagram -->
+    <div class="keyboard-wrap">
+      <div class="keyboard-legend">
+        <div class="legend-item"><div class="legend-dot pinky"></div>Pinky</div>
+        <div class="legend-item"><div class="legend-dot ring"></div>Ring</div>
+        <div class="legend-item"><div class="legend-dot middle"></div>Middle</div>
+        <div class="legend-item"><div class="legend-dot index"></div>Index</div>
+        <div class="legend-item"><div class="legend-dot thumb"></div>Thumb</div>
+      </div>
+      <div id="freeform-keyboard-diagram" class="keyboard-diagram"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="session-footer" id="freeform-footer">
+      <span class="hint">Just start typing — no need to click the text box.</span>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn-secondary text-sm" id="btn-quit-freeform">Quit</button>
+        <button class="btn-primary text-sm" id="btn-finish-freeform">Finish &amp; Get Feedback</button>
+      </div>
+    </div>
+
+    <!-- Results panel (shown after session ends) -->
+    <div id="freeform-results" class="freeform-results hidden">
+      <div class="summary-header">
+        <h2>Freeform Complete</h2>
+        <p>Here's how you did.</p>
+      </div>
+
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <div class="val accent" id="freeform-result-wpm">—</div>
+          <div class="lbl">WPM</div>
+        </div>
+        <div class="summary-stat">
+          <div class="val good" id="freeform-result-accuracy">—</div>
+          <div class="lbl">Accuracy</div>
+        </div>
+        <div class="summary-stat">
+          <div class="val" id="freeform-result-time">—</div>
+          <div class="lbl">Duration</div>
+        </div>
+      </div>
+
+      <div class="problem-keys-section">
+        <h3>Problem Keys This Session</h3>
+        <div id="freeform-problem-keys" class="problem-key-list"></div>
+      </div>
+
+      <div class="ai-feedback">
+        <h3>Coach Feedback</h3>
+        <div id="freeform-ai-text">
+          <span class="unavailable">Coaching feedback will appear here after your session.</span>
+        </div>
+        <button id="btn-freeform-ai" class="btn-primary freeform-ai-btn">Get AI Feedback</button>
+      </div>
+
+      <div class="summary-actions">
+        <button id="btn-freeform-again" class="btn-secondary">Try Again</button>
+        <button id="btn-freeform-lessons" class="btn-secondary">All Lessons</button>
       </div>
     </div>
 

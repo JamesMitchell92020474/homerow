@@ -45,7 +45,15 @@
     wpmInterval: null,
     sessionTimerInterval: null,
     sessionElapsed: 0,   // seconds
+    // Freeform
+    freeformSessionData: null,
   };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  FREEFORM STORY TEXT
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const FREEFORM_TEXT = 'The quick brown fox jumps over the lazy dog. The fox landed lightly on the far side of the fence, its amber eyes bright with mischief. The dog opened one sleepy eye, then closed it again with a slow and heavy huff. The fox sat nearby, twitching its bushy tail. It watched the old hound with quiet curiosity, half hoping for a chase that never came. But the dog only yawned, stretched its long legs wide, and rolled onto its back in the warm afternoon sun.';
 
   // ═══════════════════════════════════════════════════════════════════════════
   //  KEYBOARD NAVIGATION — arrow key focus for multi-button screens/modals
@@ -392,7 +400,8 @@
     }
 
     loadPreferences();
-    buildKeyboard();
+    buildKeyboard('keyboard-diagram');
+    buildKeyboard('freeform-keyboard-diagram');
     bindGlobalEvents();
     initAudio();
 
@@ -400,9 +409,7 @@
       Storage.initFresh();
       showScreen('welcome');
     } else {
-      const restorable = ['welcome', 'lessons', 'history', 'achievements', 'settings'];
-      const last = sessionStorage.getItem('homerow_screen');
-      showScreen(restorable.includes(last) ? last : 'lessons');
+      showScreen('welcome');
     }
   }
 
@@ -430,6 +437,9 @@
     document.querySelectorAll('.nav-btn').forEach(b => {
       b.classList.toggle('active', b.dataset.screen === name);
     });
+    // Freeform nav button has no data-screen — highlight manually
+    const freeformNavBtn = document.getElementById('btn-nav-freeform');
+    if (freeformNavBtn) freeformNavBtn.classList.toggle('active', name === 'freeform');
 
     // Screen-specific rendering
     if (name === 'lessons')      renderLessonSelect();
@@ -883,6 +893,182 @@
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  FREEFORM MODE
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  function startFreeform() {
+    if (State.sessionTimerInterval) clearInterval(State.sessionTimerInterval);
+    if (State.wpmInterval) clearInterval(State.wpmInterval);
+
+    State.session = {
+      lessonId: 'freeform',
+      lesson: { id: 'freeform', phase: 'freeform', targetAccuracy: null },
+      exercises: [],
+    };
+    State.exerciseIndex = 0;
+    State.totalCorrect = 0;
+    State.totalErrors = 0;
+    State.totalChars = 0;
+    State.sessionStart = new Date();
+    State.sessionElapsed = 0;
+    State.exerciseComplete = false;
+    State.freeformSessionData = null;
+    Tracker.resetSession();
+
+    document.getElementById('freeform-results').classList.add('hidden');
+    document.getElementById('freeform-footer').classList.remove('hidden');
+
+    showScreen('freeform');
+
+    State.text = FREEFORM_TEXT.trim();
+    State.position = 0;
+    State.errors = 0;
+    State.correct = 0;
+    State.typingStart = null;
+
+    renderTypingText();
+    updateProgressBar();
+    updateStats();
+    startSessionTimer();
+
+    document.getElementById('freeform-text').focus({ preventScroll: true });
+
+    // Reset scroll after focus so the browser can't override it
+    const typingArea = document.querySelector('#screen-freeform .typing-area');
+    if (typingArea) typingArea.scrollTop = 0;
+  }
+
+  function showFreeformResults() {
+    if (State.sessionTimerInterval) clearInterval(State.sessionTimerInterval);
+    if (State.wpmInterval) clearInterval(State.wpmInterval);
+
+    const finalWpm = calculateSessionWpm();
+    const finalAccuracy = calculateSessionAccuracy();
+
+    State.freeformSessionData = {
+      wpm: finalWpm,
+      accuracy: finalAccuracy,
+      duration: State.sessionElapsed,
+      problemKeys: Tracker.getSessionStats(),
+    };
+
+    // Hide the footer, show results
+    document.getElementById('freeform-footer').classList.add('hidden');
+    const resultsEl = document.getElementById('freeform-results');
+    resultsEl.classList.remove('hidden');
+
+    // Populate stats
+    const wpmEl = document.getElementById('freeform-result-wpm');
+    wpmEl.textContent = finalWpm;
+    wpmEl.className = 'val ' + (finalWpm >= 40 ? 'good' : finalWpm >= 25 ? 'accent' : 'warning');
+
+    const accEl = document.getElementById('freeform-result-accuracy');
+    accEl.textContent = finalAccuracy + '%';
+    accEl.className = 'val ' + (finalAccuracy >= 95 ? 'good' : finalAccuracy >= 85 ? 'accent' : 'warning');
+
+    document.getElementById('freeform-result-time').textContent = formatTime(State.sessionElapsed);
+
+    // Problem keys
+    const sessionProblems = Tracker.getSessionProblemKeys(5);
+    const problemList = document.getElementById('freeform-problem-keys');
+    problemList.innerHTML = '';
+    if (sessionProblems.length === 0) {
+      problemList.innerHTML = '<span class="text-dim text-sm">No significant problem keys this session. Great work!</span>';
+    } else {
+      sessionProblems.forEach(pk => {
+        const chip = document.createElement('div');
+        chip.className = 'problem-key-chip';
+        const rate = Math.round(pk.errorRate * 100);
+        const missWord = pk.misses === 1 ? 'miss' : 'misses';
+        chip.innerHTML = `<span>${pk.key === ' ' ? 'space' : pk.key.toUpperCase()}</span><span class="rate">${pk.misses} ${missWord} (${rate}%)</span>`;
+        problemList.appendChild(chip);
+      });
+    }
+
+    // Auto-fetch AI feedback — no button click needed
+    document.getElementById('btn-freeform-ai').classList.add('hidden');
+    fetchFreeformAiFeedback();
+
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function fetchFreeformAiFeedback() {
+    const feedbackEl = document.getElementById('freeform-ai-text');
+    const aiBtn = document.getElementById('btn-freeform-ai');
+    if (!feedbackEl || !State.freeformSessionData) return;
+
+    const sessionData = State.freeformSessionData;
+    const proxyAvailable = isHosted();
+    const apiKey = Storage.getApiKey();
+
+    aiBtn.classList.add('hidden');
+    feedbackEl.innerHTML = '<span class="loading">Generating your coaching feedback\u2026</span>';
+
+    if (!proxyAvailable && !apiKey) {
+      const template = generateTemplateFeedback({ ...sessionData, lessonId: 'freeform', phase: 'freeform' });
+      feedbackEl.innerHTML = `<p>${escapeHtml(template)}</p>`;
+      return;
+    }
+
+    const recentSessions = Storage.getRecentSessions(5);
+    const trend = computeTrend(recentSessions);
+    const topProblems = Tracker.getSessionProblemKeys(3);
+    const problemStr = topProblems.length > 0
+      ? topProblems.map(p => {
+          const label = p.key === ' ' ? 'space' : p.key.toUpperCase();
+          const finger = (KEY_INFO[p.key] || {}).finger || '';
+          return `${label} (${finger}, ${Math.round(p.errorRate * 100)}% error rate)`;
+        }).join(', ')
+      : 'none significant';
+
+    const prompt = `You are a friendly, encouraging touch-typing coach. Give a short (3\u20134 sentence) personalised feedback summary for a student who just completed a freeform typing session — they typed a passage of continuous prose rather than a structured lesson.
+
+Session data:
+- WPM: ${sessionData.wpm}
+- Accuracy: ${sessionData.accuracy}%
+- Duration: ${formatTime(sessionData.duration)}
+- Top problem keys: ${problemStr}
+- WPM trend vs last sessions: ${trend}
+
+Be specific, warm, and actionable. Don't repeat the stats verbatim. Give one concrete tip for improvement. Keep it under 80 words.`;
+
+    try {
+      let feedback;
+      if (proxyAvailable) {
+        const resp = await fetch('./server/proxy.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt }),
+        });
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error);
+        feedback = data.feedback;
+      } else {
+        const resp = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 400,
+            messages: [{ role: 'user', content: prompt }],
+          }),
+        });
+        const data = await resp.json();
+        if (data.error) throw new Error(data.error.message);
+        feedback = data.content[0].text;
+      }
+      feedbackEl.innerHTML = `<p>${escapeHtml(feedback)}</p>`;
+    } catch (err) {
+      const template = generateTemplateFeedback({ ...sessionData, lessonId: 'freeform', phase: 'freeform' });
+      feedbackEl.innerHTML = `<p>${escapeHtml(template)}</p>`;
+    }
+  }
+
   function calculateSessionWpm() {
     if (!State.sessionStart) return 0;
     const minutes = (new Date() - State.sessionStart) / 60000;
@@ -900,24 +1086,87 @@
   //  TYPING ENGINE
   // ═══════════════════════════════════════════════════════════════════════════
 
-  function renderTypingText() {
-    const container = document.getElementById('typing-text');
-    container.innerHTML = '';
+  function getTypingEl() {
+    return State.currentScreen === 'freeform'
+      ? document.getElementById('freeform-text')
+      : document.getElementById('typing-text');
+  }
 
-    State.text.split('').forEach((ch, i) => {
-      const span = document.createElement('span');
-      span.textContent = ch === ' ' ? '\u00a0' : ch; // non-breaking space for display
-      span.dataset.char = ch;
-      span.dataset.index = i;
-      span.className = i === 0 ? 'current' : 'pending';
-      container.appendChild(span);
-    });
+  function scrollToCurrentChar() {
+    if (State.currentScreen !== 'freeform') return;
+    const container = document.querySelector('#screen-freeform .typing-area');
+    const currentSpan = document.getElementById('freeform-text').querySelector('.current');
+    if (!container || !currentSpan) return;
+
+    // Use getBoundingClientRect so nested word-wrapper spans don't affect positioning
+    const containerRect = container.getBoundingClientRect();
+    const spanRect = currentSpan.getBoundingClientRect();
+    const lineHeight = currentSpan.offsetHeight;
+    const paddingTop = parseFloat(getComputedStyle(container).paddingTop);
+
+    // Span's position within the full scrollable content of the container
+    const spanTopInContainer = spanRect.top - containerRect.top + container.scrollTop;
+    // Subtract padding so position is relative to the text content area
+    const spanTopInContent = spanTopInContainer - paddingTop;
+
+    // Scroll so the line ABOVE the current one sits at the top of the content area
+    const targetScroll = Math.max(0, spanTopInContent - lineHeight);
+    container.scrollTop = targetScroll;
+  }
+
+  function renderTypingText() {
+    const container = getTypingEl();
+    container.innerHTML = '';
+    State.charSpans = null;
+
+    if (State.currentScreen === 'freeform') {
+      // Wrap each word in an inline-block span so words never break across lines
+      const charSpans = [];
+      const chars = State.text.split('');
+      let i = 0;
+      while (i < chars.length) {
+        if (chars[i] === ' ') {
+          const span = document.createElement('span');
+          span.textContent = '\u00a0';
+          span.dataset.char = ' ';
+          span.dataset.index = i;
+          span.className = i === 0 ? 'current' : 'pending';
+          container.appendChild(span);
+          charSpans.push(span);
+          i++;
+        } else {
+          const wordWrap = document.createElement('span');
+          wordWrap.style.cssText = 'display:inline-block;white-space:nowrap';
+          while (i < chars.length && chars[i] !== ' ') {
+            const span = document.createElement('span');
+            span.textContent = chars[i];
+            span.dataset.char = chars[i];
+            span.dataset.index = i;
+            span.className = i === 0 ? 'current' : 'pending';
+            wordWrap.appendChild(span);
+            charSpans.push(span);
+            i++;
+          }
+          container.appendChild(wordWrap);
+        }
+      }
+      State.charSpans = charSpans;
+    } else {
+      State.text.split('').forEach((ch, i) => {
+        const span = document.createElement('span');
+        span.textContent = ch === ' ' ? '\u00a0' : ch;
+        span.dataset.char = ch;
+        span.dataset.index = i;
+        span.className = i === 0 ? 'current' : 'pending';
+        container.appendChild(span);
+      });
+    }
 
     highlightKey(State.text[0]);
   }
 
   function handleKeydown(e) {
-    if (State.currentScreen !== 'session') return;
+    if (State.currentScreen !== 'session' && State.currentScreen !== 'freeform') return;
     if (State.exerciseComplete) return;
 
     // Ignore modifier-only keys
@@ -950,7 +1199,7 @@
   }
 
   function processKeystroke(key, expected, isCorrect) {
-    const spans = document.getElementById('typing-text').children;
+    const spans = State.charSpans || getTypingEl().children;
     const currentSpan = spans[State.position];
 
     if (isCorrect) {
@@ -1002,11 +1251,12 @@
 
     updateProgressBar();
     updateStats();
+    scrollToCurrentChar();
   }
 
   function handleBackspace() {
     if (State.position <= 0) return;
-    const spans = document.getElementById('typing-text').children;
+    const spans = State.charSpans || getTypingEl().children;
 
     // Remove current cursor
     if (State.position < spans.length) {
@@ -1017,11 +1267,18 @@
     spans[State.position].className = 'current';
     highlightKey(State.text[State.position]);
     updateProgressBar();
+    scrollToCurrentChar();
   }
 
   function finishExercise(passedClean) {
     State.exerciseComplete = true;
     if (State.wpmInterval) clearInterval(State.wpmInterval);
+
+    // Freeform mode — show results panel instead of advancing
+    if (State.currentScreen === 'freeform') {
+      setTimeout(() => showFreeformResults(), 400);
+      return;
+    }
 
     const accuracy = State.errors === 0
       ? 100
@@ -1081,6 +1338,14 @@
 
     const timeEl = document.getElementById('session-time');
     if (timeEl) timeEl.textContent = formatTime(State.sessionElapsed);
+
+    // Freeform screen stats
+    const fwpmEl = document.getElementById('freeform-wpm');
+    if (fwpmEl) fwpmEl.textContent = wpm;
+    const faccEl = document.getElementById('freeform-accuracy');
+    if (faccEl) faccEl.textContent = accuracy + '%';
+    const ftimeEl = document.getElementById('freeform-time');
+    if (ftimeEl) ftimeEl.textContent = formatTime(State.sessionElapsed);
   }
 
   function getLiveWpm() {
@@ -1100,14 +1365,16 @@
     const pct = State.text.length > 0 ? (State.position / State.text.length) * 100 : 0;
     const fill = document.getElementById('progress-fill');
     if (fill) fill.style.width = pct + '%';
+    const freeformFill = document.getElementById('freeform-progress-fill');
+    if (freeformFill) freeformFill.style.width = pct + '%';
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   //  KEYBOARD DIAGRAM
   // ═══════════════════════════════════════════════════════════════════════════
 
-  function buildKeyboard() {
-    const diagram = document.getElementById('keyboard-diagram');
+  function buildKeyboard(targetId = 'keyboard-diagram') {
+    const diagram = document.getElementById(targetId);
     if (!diagram) return;
 
     const layout = Lessons.getKeyboardLayout();
@@ -1143,15 +1410,17 @@
     const spacebar = document.createElement('div');
     spacebar.className = 'kb-spacebar';
     spacebar.dataset.key = ' ';
-    spacebar.id = 'kb-spacebar';
     spaceRow.appendChild(spacebar);
     diagram.appendChild(spaceRow);
   }
 
   function highlightKey(char) {
-    // Remove all existing highlights
-    document.querySelectorAll('.kb-key.active').forEach(k => k.classList.remove('active'));
-    const spacebar = document.getElementById('kb-spacebar');
+    const diagramId = State.currentScreen === 'freeform' ? 'freeform-keyboard-diagram' : 'keyboard-diagram';
+    const diagram = document.getElementById(diagramId);
+    if (!diagram) return;
+
+    diagram.querySelectorAll('.kb-key.active').forEach(k => k.classList.remove('active'));
+    const spacebar = diagram.querySelector('.kb-spacebar');
     if (spacebar) spacebar.classList.remove('active');
 
     if (!char) return;
@@ -1162,7 +1431,7 @@
       return;
     }
 
-    const key = document.querySelector(`.kb-key[data-key="${lower}"]`);
+    const key = diagram.querySelector(`.kb-key[data-key="${lower}"]`);
     if (key) key.classList.add('active');
   }
 
@@ -1251,9 +1520,10 @@
         const chip = document.createElement('div');
         chip.className = 'problem-key-chip';
         const rate = Math.round(pk.errorRate * 100);
+        const missWord = pk.misses === 1 ? 'miss' : 'misses';
         chip.innerHTML = `
           <span>${pk.key === ' ' ? 'space' : pk.key.toUpperCase()}</span>
-          <span class="rate">${rate}% error</span>
+          <span class="rate">${pk.misses} ${missWord} (${rate}%)</span>
         `;
         problemList.appendChild(chip);
       });
@@ -2091,6 +2361,39 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
     if (typingText) {
       typingText.setAttribute('tabindex', '0');
     }
+
+    // Freeform mode
+    const freeformNavBtn = document.getElementById('btn-nav-freeform');
+    if (freeformNavBtn) freeformNavBtn.addEventListener('click', startFreeform);
+
+    const quitFreeformBtn = document.getElementById('btn-quit-freeform');
+    if (quitFreeformBtn) {
+      quitFreeformBtn.addEventListener('click', () => {
+        if (confirm('End this freeform session?')) showScreen('lessons');
+      });
+    }
+
+    const finishFreeformBtn = document.getElementById('btn-finish-freeform');
+    if (finishFreeformBtn) {
+      finishFreeformBtn.addEventListener('click', () => {
+        if (!State.exerciseComplete) {
+          State.exerciseComplete = true;
+          if (State.wpmInterval) clearInterval(State.wpmInterval);
+          showFreeformResults();
+        } else {
+          document.getElementById('freeform-results')?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
+
+    const freeformAiBtn = document.getElementById('btn-freeform-ai');
+    if (freeformAiBtn) freeformAiBtn.addEventListener('click', fetchFreeformAiFeedback);
+
+    const freeformAgainBtn = document.getElementById('btn-freeform-again');
+    if (freeformAgainBtn) freeformAgainBtn.addEventListener('click', startFreeform);
+
+    const freeformLessonsBtn = document.getElementById('btn-freeform-lessons');
+    if (freeformLessonsBtn) freeformLessonsBtn.addEventListener('click', () => showScreen('lessons'));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
