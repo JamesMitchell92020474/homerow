@@ -297,7 +297,7 @@ The welcome screen (`#screen-welcome`) has three sections between the tagline an
 
 4. The **Start Learning / Continue Learning** button (`#btn-start`) — text is set dynamically in `showScreen('welcome')` based on whether `Storage.getAll().sessions` is non-empty. First visit: "Start Learning →". Returning user: "Continue Learning →".
 
-5. The **Load Progress** button (`#btn-import-welcome`) on the welcome screen — calls `triggerImport()` directly, same as the Settings import. Hidden on first visit (`hasProgress === false`); shown once at least one session exists.
+5. The **Load from File** button (`#btn-import-welcome`) on the welcome screen — calls `triggerImport()` directly, same as the Settings import. Hidden on first visit (`hasProgress === false`); shown once at least one session exists.
 
 ---
 
@@ -558,6 +558,40 @@ No errors are thrown and all other features work normally.
 
 ---
 
+## Freeform Mode
+
+`#screen-freeform` is a free-practice screen separate from the lesson curriculum. It is accessible via the **Freeform** nav button (`#btn-nav-freeform`), which does not use `data-screen` — it calls `startFreeform()` directly.
+
+### Passage
+
+`FREEFORM_TEXT` is a `const` string defined near the top of `app.js` (after the `State` object). It contains a short passage (~90 words) beginning with "The quick brown fox jumps over the lazy dog" and continuing with a brief story about the fox and the dog. It is designed to use a wide spread of keys and to be completable in roughly 1–2 minutes at beginner pace.
+
+### Typing area
+
+`#freeform-text` shares all character span styles with `#typing-text` (selectors are combined in `style.css`). The container (`.typing-area` scoped to `#screen-freeform`) is fixed at `200px` height with `overflow-y: scroll`, showing approximately 3 lines at a time.
+
+**Word wrapping:** In freeform mode, `renderTypingText()` wraps each word's character spans inside an `inline-block; white-space: nowrap` span so words never break across lines. The character spans are stored in `State.charSpans` (an array). `processKeystroke()` and `handleBackspace()` use `State.charSpans || getTypingEl().children` so session mode (which uses flat children) is unaffected.
+
+**Auto-scroll:** `scrollToCurrentChar()` fires after every keystroke and backspace. It uses `getBoundingClientRect()` to measure positions (so nested word-wrapper spans don't interfere), accounts for the container's `paddingTop`, and sets `scrollTop` so the line above the current character sits at the top of the content area.
+
+**Focus:** `startFreeform()` calls `focus({ preventScroll: true })` then resets `scrollTop = 0` immediately after, preventing browser-induced scroll on focus.
+
+### Session state
+
+Freeform reuses the main `State` object (`State.text`, `State.position`, `State.errors`, etc.) with `State.session.lessonId = 'freeform'`. The drill-injection and lesson-unlock logic is bypassed because `lessonId === 'freeform'`. `State.freeformSessionData` holds the result object after the session ends.
+
+### Results
+
+`showFreeformResults()` hides `#freeform-footer`, shows `#freeform-results`, populates WPM / accuracy / time stats and problem key chips, then calls `fetchFreeformAiFeedback()` automatically — no button click is needed. The "Get AI Feedback" button (`#btn-freeform-ai`) is hidden on results load and only re-shown if needed as a refresh action.
+
+`fetchFreeformAiFeedback()` posts to the same `./server/proxy.php` endpoint as lesson feedback, with a freeform-specific prompt. Falls back to `generateTemplateFeedback()` silently if not hosted or if the API call fails.
+
+### Problem key chips
+
+Both freeform and regular session summary chips display `{misses} miss/misses ({rate}%)` — e.g. **E — 3 misses (7%)**. The count shows absolute misses; the rate is `misses / total presses` of that key, normalised for key frequency.
+
+---
+
 ## Hosting on cPanel (e.g. myhost.nz)
 
 HomeRow is designed to be self-hosted on a subdomain such as `homerow.yourdomain.co.nz`.
@@ -579,7 +613,7 @@ HomeRow is designed to be self-hosted on a subdomain such as `homerow.yourdomain
 
 Progress is stored in each user's **browser localStorage**. It is not shared between users or devices. Each browser/device has its own independent progress.
 
-The **Save/Load Progress** feature is the recommended way for users to back up and transfer progress across devices or browsers. Export filename format: `homerow-lesson{N}-YYYY-MM-DD.json` where N is `currentLesson`.
+The **Save to File / Load from File** feature is the recommended way for users to back up and transfer progress across devices or browsers. Export filename format: `homerow-lesson{N}-YYYY-MM-DD.json` where N is `currentLesson`.
 
 If a future version requires shared cross-device progress (e.g. for a classroom), a database backend would need to be added. The localStorage schema above is the starting point for that design.
 
@@ -601,7 +635,7 @@ Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Set
 
 ### Screen persistence on refresh
 
-`showScreen(name)` writes the screen name to `sessionStorage` (`homerow_screen`). On `init()`, if the user has existing data, this value is read back and used to restore the last screen. Only the screens `welcome`, `lessons`, `history`, and `settings` are restorable — `session` and `summary` are transient and fall back to `lessons`.
+`showScreen(name)` writes the screen name to `sessionStorage` (`homerow_screen`), but this value is no longer read on load. The app always opens at `showScreen('welcome')` regardless of where the user was last. The `sessionStorage` write is kept in case screen restore is re-enabled in future.
 
 ### New screens
 1. Add a `<main id="screen-name">` block in `index.html`
