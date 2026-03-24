@@ -1,5 +1,6 @@
-# Never commit the API key
+# Never commit server credentials
 server/config.php
+server/proxy.php
 
 # Exported progress backups
 backups/*.json
