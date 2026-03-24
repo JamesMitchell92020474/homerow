@@ -432,6 +432,11 @@ input:focus, select:focus, textarea:focus {
   color: var(--text-dim);
   font-family: 'Courier New', monospace;
 }
+.lesson-card .lesson-target {
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  margin-top: 0.25rem;
+}
 .lesson-card .lesson-status {
   position: absolute;
   top: 0.75rem;

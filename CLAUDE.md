@@ -99,12 +99,11 @@ Each lesson object supports:
 | `title` | yes | Shown on lesson card and session header |
 | `subtitle` | yes | Key list shown on lesson card |
 | `description` | yes | Longer description shown on lesson card |
+| `targetWpm` / `targetAccuracy` | yes | Shown on lesson card as "Target: X WPM · Y%" and used for pass/fail logic |
 | `newKeysNote` | no | Short note shown in the new-key intro modal (e.g. "Left Hand Home Row"). If absent, no note is shown. |
 | `phase` | yes | `"beginner"` / `"intermediate"` / `"advanced"` |
 | `newKeys` | yes | Keys introduced this lesson — drives the new-key intro modal |
 | `allKeys` | yes | All keys the student has learned so far — gates problem-key drill injection. Must be unique, no duplicates. Follow the cumulative order established by earlier lessons. |
-| `targetWpm` | yes | WPM required to unlock the next lesson |
-| `targetAccuracy` | yes | Accuracy % required to unlock next lesson |
 | `sessionLength` | yes | `{ min, max }` in minutes — advisory display only |
 | `exercises` | yes | Array of exercise objects (see above) |
 

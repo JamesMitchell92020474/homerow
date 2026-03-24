@@ -573,6 +573,7 @@
           <div class="lesson-num">Lesson ${lesson.id}</div>
           <h4>${lesson.title}</h4>
           <div class="lesson-keys">${lesson.subtitle}</div>
+          <div class="lesson-target">Target: ${lesson.targetWpm} WPM · ${lesson.targetAccuracy}%</div>
           ${bestStats}
           <div class="lesson-status">${statusIcon}</div>
         `;
