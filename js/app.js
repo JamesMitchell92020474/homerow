@@ -1282,7 +1282,7 @@ Be specific, warm, and actionable. Don't repeat the stats verbatim. Give one con
 
     const accuracy = State.errors === 0
       ? 100
-      : Math.round((State.correct / (State.correct + State.errors)) * 100);
+      : Math.floor((State.correct / (State.correct + State.errors)) * 100);
 
     // If accuracy is below 80%, repeat this exercise
     if (accuracy < 80 && State.session.lesson.targetAccuracy) {
@@ -1549,13 +1549,16 @@ Be specific, warm, and actionable. Don't repeat the stats verbatim. Give one con
 
     // Strict Mode prompt — show once after first-ever lesson pass
     const strictPrompt = document.getElementById('strict-mode-prompt');
+    const strictRow = document.querySelector('.summary-strict-row');
     if (strictPrompt) {
       const prefs = Storage.getAll().preferences;
       const completedCount = Object.values(Storage.getAll().lessonProgress || {}).filter(l => l.completed).length;
       if (unlocked && completedCount === 1 && !prefs.seenStrictPrompt && !State.strictMode) {
         strictPrompt.classList.remove('hidden');
+        if (strictRow) strictRow.classList.add('hidden');
       } else {
         strictPrompt.classList.add('hidden');
+        if (strictRow) strictRow.classList.remove('hidden');
       }
     }
 
@@ -2267,6 +2270,8 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
         if (settingsCheck) settingsCheck.checked = true;
         if (summaryStrictCheck) summaryStrictCheck.checked = true;
         document.getElementById('strict-mode-prompt').classList.add('hidden');
+        const strictRowYes = document.querySelector('.summary-strict-row');
+        if (strictRowYes) strictRowYes.classList.remove('hidden');
       });
     }
     const strictNoBtn = document.getElementById('btn-strict-no');
@@ -2274,6 +2279,8 @@ Comment on their overall trajectory, acknowledge what they've built, and give on
       strictNoBtn.addEventListener('click', () => {
         Storage.savePreference('seenStrictPrompt', true);
         document.getElementById('strict-mode-prompt').classList.add('hidden');
+        const strictRowNo = document.querySelector('.summary-strict-row');
+        if (strictRowNo) strictRowNo.classList.remove('hidden');
       });
     }
 
