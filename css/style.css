@@ -14,7 +14,7 @@
 
   --text:       #e2e2ec;
   --text-dim:   #8888a0;
-  --text-faint: #444458;
+  --text-faint: #6a6a84;
 
   --accent:     #5b8cf7;
   --accent-dim: #3a6be0;
@@ -52,7 +52,7 @@ body.light {
 
   --text:       #1a1a2e;
   --text-dim:   #55556a;
-  --text-faint: #aaaabc;
+  --text-faint: #888898;
 
   --shadow: 0 4px 24px rgba(0,0,0,0.10);
 
@@ -1649,6 +1649,9 @@ input:focus, select:focus, textarea:focus {
   position: fixed;
   inset: 0;
   background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -102,7 +102,7 @@ Each lesson object supports:
 | `newKeysNote` | no | Short note shown in the new-key intro modal (e.g. "Left Hand Home Row"). If absent, no note is shown. |
 | `phase` | yes | `"beginner"` / `"intermediate"` / `"advanced"` |
 | `newKeys` | yes | Keys introduced this lesson — drives the new-key intro modal |
-| `allKeys` | yes | All keys the student has learned so far — gates problem-key drill injection |
+| `allKeys` | yes | All keys the student has learned so far — gates problem-key drill injection. Must be unique, no duplicates. Follow the cumulative order established by earlier lessons. |
 | `targetWpm` | yes | WPM required to unlock the next lesson |
 | `targetAccuracy` | yes | Accuracy % required to unlock next lesson |
 | `sessionLength` | yes | `{ min, max }` in minutes — advisory display only |
@@ -473,14 +473,18 @@ else showScreen('summary');
 3. Updates the header copy dynamically: `"Session Complete 🎉"` / `"Great work — lesson passed!"` if `unlocked`; `"Session Complete"` / `"Here's how you did."` if not.
 4. Shows the **unlock banner** (`#unlock-banner`) if `unlocked && nextLesson`.
 5. Shows the **not-passed notice** (`#not-passed-notice`) if `!unlocked` — lists exactly which thresholds were missed.
-6. Shows the **Strict Mode prompt** (`#strict-mode-prompt`) once — only when `unlocked && completedCount === 1 && !seenStrictPrompt && !State.strictMode`. Dismissed via "Turn on Strict Mode" or "Not yet"; both set `seenStrictPrompt: true`.
+6. Shows the **Strict Mode prompt** (`#strict-mode-prompt`) once — only when `unlocked && completedCount === 1 && !seenStrictPrompt && !State.strictMode`. Dismissed via "Turn on Strict Mode" or "Not yet"; both set `seenStrictPrompt: true`. While the prompt is visible, the **Strict Mode toggle row** (`.summary-strict-row`) is hidden to avoid duplication; it reappears once the prompt is dismissed.
 7. Syncs the **Strict Mode toggle** (`#summary-strict-check`) with `State.strictMode`. The toggle updates Settings and `State` in both directions.
-8. Renders problem key chips — keys that round to 0% error rate are excluded.
+8. Renders problem key chips — keys that round to 0% error rate are excluded. Chips display both absolute miss count and error rate, e.g. **S — 1 miss (2%)**.
 9. Shows/hides the **Next Lesson** button based on whether the next lesson is now unlocked. The **Next Lesson** button appears before the **Try Again** button in the DOM.
 10. Calls `checkAchievements()` and `renderNewAchievements()` — always runs regardless of pass/fail.
 11. Calls `fetchAiFeedback()`.
 
 KeyNav for the summary is set in `showScreen('summary')`, not in `renderSummary()`.
+
+### Accuracy calculation
+
+Session accuracy uses `Math.floor` (not `Math.round`) so that 100% is only shown when the user made zero errors. A single mistake floors the result to 99% or below, preventing false Ghost Fingers achievements and misleading displays.
 
 ### Live session colour coding
 
@@ -632,6 +636,8 @@ Add to the `preferences` object in `Storage.defaults()`, add a UI row in the Set
 `isMobileDevice()` in `app.js` runs at the top of `init()`. If it returns `true`, the `#mobile-notice` overlay is shown and the app does not load. Detection uses two signals — either triggers the notice:
 - `navigator.maxTouchPoints > 0 && !window.matchMedia('(pointer: fine)').matches` — touch-only device with no fine pointer
 - `window.innerWidth < 600` — screen narrower than 600 px
+
+The `.mobile-notice` overlay uses `display: flex` with `align-items: center` and `justify-content: center` so the message is centred both horizontally and vertically on the screen.
 
 ### Screen persistence on refresh
 
